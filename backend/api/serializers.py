@@ -1,7 +1,8 @@
 from rest_framework import serializers
-from .models import User, Role, Passphrase
+from .models import User, Role, Passphrase, Account, Password, Analysis
 from rest_framework_simplejwt.tokens import RefreshToken
 from django.contrib.auth.hashers import check_password
+import bcrypt
 
 class RoleSerializer(serializers.ModelSerializer):
     class Meta:
@@ -12,7 +13,6 @@ class PassphraseSerializer(serializers.ModelSerializer):
     class Meta:
         model = Passphrase
         fields = ['passphrase']
-        
 class UserSerializer(serializers.ModelSerializer):
     role = RoleSerializer(read_only=True)
     passphrase = PassphraseSerializer(source='user_passphrase', read_only=True)  # Updated to use 'user_passphrase'
@@ -50,3 +50,64 @@ class LoginSerializer(serializers.Serializer):
         data["user_id"] = user.id
 
         return data
+class PasswordSerializer(serializers.ModelSerializer):   
+    class Meta:
+        model = Password
+        fields = ['password']
+
+class AccountSerializer(serializers.ModelSerializer):
+    user = UserSerializer(read_only=True)
+    password = PasswordSerializer(read_only=True)       
+    class Meta:
+        model = Account
+        fields = ['name', 'description', 'username', 'password_id', 'user_id']
+
+class AnalysisSerializer(serializers.ModelSerializer):
+    password = PasswordSerializer(read_only=True)
+    class Meta:
+        model = Analysis
+        fields = ['entropy', 'estimated_cracking_time', 'remarks', 'password_id']
+
+class PasswordHasher(serializers.ModelSerializer):
+    class Meta:
+        model = Password
+        fields = ['password']
+
+    def hash(self, password):
+        # Only hash the password, no saving
+        return bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt()).decode('utf-8')
+
+class CreateAccountSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Account
+        fields = ['name', 'description', 'username', 'password_id']
+    
+    def validate(self, data):
+        name = data.get('name')
+        description = data.get('description')
+        username = data.get('username')
+        password = data.get('password')
+
+       
+        if Account.objects.filter(username=username).exists():
+            raise serializers.ValidationError("Username must be unique.")
+        
+       
+        password_hasher = PasswordHasher()
+        hashed_password = password_hasher.hash(password)
+
+        
+        password_instance = Password.objects.create(password=hashed_password)
+
+        
+        account = Account(
+            name=name,
+            description=description,
+            username=username,
+            user=self.context['request'].user,
+            password=password_instance 
+        )
+        account.save()
+
+        return data
+

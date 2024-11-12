@@ -1,8 +1,8 @@
 # Description: Views for the users app.
 
 from rest_framework import generics
-from .models import User, Role
-from .serializers import UserSerializer, LoginSerializer
+from .models import User, Role, Account, Passphrase, Password, Analysis
+from .serializers import UserSerializer, LoginSerializer, CreateAccountSerializer, PasswordSerializer, AccountSerializer
 
 # for login process
 from rest_framework.views import APIView
@@ -52,10 +52,29 @@ class LoginView(APIView):
         
         if serializer.is_valid():
             print(f"[DEBUG] Login data validated for email: {request.data.get('email')}")  # Debugging line
-            return Response(serializer.validated_data, status=status.HTTP_200_OK)
+            
         else:
             print(f"[DEBUG] Login validation failed for email: {request.data.get('email')}")  # Debugging line
             print(f"[DEBUG] Errors: {serializer.errors}")  # Debugging line
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        
+
+# for querying existing accounts of the current user
+class AccountView(generics.ListAPIView):
+    def post(self, request):
+        serializer = CreateAccountSerializer(data = request.data)
+        if serializer.is_valid():
+           return Response(serializer.validated_data, status=status.HTTP_200_OK)
+       
+        
+
+class FetchAccountView(generics.RetrieveAPIView):
+    def get_queryset(self):
+        user = self.request.user
+        if user is not None:
+            return Response(Account.objects.filter(user=user), status=status.HTTP_200_OK)
+        else:
+            return Response({"detail": "No accounts found for the user."}, status=status.HTTP_200_OK)
+            
         
         
