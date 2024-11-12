@@ -3,8 +3,9 @@ import Navbar from "./layouts/Navbar";
 import Home from "./components/Home";
 import Menu from "./components/Accounts";
 import About from "./components/About";
-
 import Footer from "./layouts/Footer";
+import { Toaster } from "react-hot-toast";
+
 
 const App = () => {
   return (
@@ -28,6 +29,7 @@ const App = () => {
       </main>
 
       <Footer />
+      <Toaster position="top-right" />
     </div>
   );
 };

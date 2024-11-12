@@ -1,14 +1,20 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Link } from "react-scroll";
 import logo from '../assets/img/logo.png';
 import Button from "./Button";
 import { AiOutlineMenuUnfold, AiOutlineClose } from "react-icons/ai";
 import Login from "../components/Login";
-
+import { toast } from "react-hot-toast";
 
 const Navbar = () => {
   const [menu, setMenu] = useState(false);
   const [showLoginModal, setShowLoginModal] = useState(false);
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+
+  useEffect(() => {
+    const token = sessionStorage.getItem("accessToken");
+    setIsLoggedIn(!!token);
+  }, []);
 
   const handleChange = () => {
     setMenu(!menu);
@@ -20,6 +26,17 @@ const Navbar = () => {
 
   const toggleLoginModal = () => {
     setShowLoginModal(!showLoginModal);
+  };
+
+  const handleLogout = () => {
+    sessionStorage.removeItem("accessToken");
+    setIsLoggedIn(false);
+    toast.success("Logged out successfully!");
+  };
+
+  const handleLoginSuccess = () => {
+    setIsLoggedIn(true);
+    setShowLoginModal(false);
   };
 
   return (
@@ -61,7 +78,11 @@ const Navbar = () => {
         </nav>
 
         <div className="hidden lg:flex">
-          <Button title="Login" onClick={toggleLoginModal} />
+          {isLoggedIn ? (
+            <Button title="Logout" onClick={handleLogout} />
+          ) : (
+            <Button title="Login" onClick={toggleLoginModal} />
+          )}
         </div>
 
         <div className="md:hidden flex items-center">
@@ -109,8 +130,11 @@ const Navbar = () => {
         >
           About Us
         </Link>
-        <Button title="Login" onClick={toggleLoginModal} />
-        
+        {isLoggedIn ? (
+          <Button title="Logout" onClick={handleLogout} />
+        ) : (
+          <Button title="Login" onClick={toggleLoginModal} />
+        )}
       </div>
 
       {/* Modal for Login */}
@@ -123,7 +147,7 @@ const Navbar = () => {
             >
               X
             </button>
-            <Login /> {/* Your login component */}
+            <Login onLoginSuccess={handleLoginSuccess} /> {/* Pass the callback */}
           </div>
         </div>
       )}
