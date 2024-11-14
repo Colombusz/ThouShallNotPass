@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import axios from "axios";
 import { useFormik } from "formik";
@@ -56,8 +55,8 @@ const Login = ({ onLoginSuccess }) => {
         const response = await axios.post("http://127.0.0.1:8000/api/users/register", values);
         console.log("Sign Up successful:", response.data);
 
-        const passphrase = response.data.passphrase.passphrase; // Adjust if nested differently
-        toast.success(`Your passphrase: ${passphrase}`);
+        const originalPassphrase = response.data.passphrase.original_passphrase; // Adjust if nested differently
+        toast.success(`Your passphrase: ${originalPassphrase}`);
       } catch (error) {
         console.error("Sign Up error:", error.response ? error.response.data : error.message);
         toast.error("Sign Up failed. Please try again.");

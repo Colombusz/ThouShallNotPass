@@ -1,3 +1,5 @@
+
+
 # Description: Views for the users app.
 
 from rest_framework import generics
@@ -9,24 +11,7 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
 
-
-
-class UserListView(generics.ListAPIView):
-    queryset = User.objects.all()
-    serializer_class = UserSerializer
-
-# class UserCreateView(generics.CreateAPIView):
-#     queryset = User.objects.all()
-#     serializer_class = UserSerializer
-
-#     def perform_create(self, serializer):
-#         # Fetch the 'user' role or create it if it doesn't exist
-#         role, created = Role.objects.get_or_create(role='user')
-#         user = serializer.save(role=role)
-#         # The passphrase is automatically created through the User model's save method
-
-
-##Frontend Registration connected
+# register/create user
 class UserCreateView(generics.CreateAPIView):
     queryset = User.objects.all()
     serializer_class = UserSerializer
@@ -36,28 +21,49 @@ class UserCreateView(generics.CreateAPIView):
         role, created = Role.objects.get_or_create(role='user')
         user = serializer.save(role=role)
         
-        # Fetch the passphrase generated for this user
-        passphrase = user.user_passphrase.passphrase
+        # Fetch the original passphrase generated for this user
+        original_passphrase = getattr(user, '_original_passphrase', None)
         
         # Send passphrase as part of the response
         return Response({
             "user": UserSerializer(user).data,
-            "passphrase": passphrase  # Include passphrase here
+            "passphrase": original_passphrase  # Include original passphrase here
         }, status=status.HTTP_201_CREATED)
 
+# read/display user
+class UserListView(generics.ListAPIView):
+    queryset = User.objects.all()
+    serializer_class = UserSerializer
+
+# update user
+class UserUpdateView(generics.UpdateAPIView):
+    queryset = User.objects.all()
+    serializer_class = UserSerializer
+
+    def put(self, request, *args, **kwargs):
+        return self.update(request, *args, **kwargs)
+
+    def patch(self, request, *args, **kwargs):
+        return self.partial_update(request, *args, **kwargs)
+
+# delete user
+class UserDeleteView(generics.DestroyAPIView):
+    queryset = User.objects.all()
+    serializer_class = UserSerializer
+
+    def delete(self, request, *args, **kwargs):
+        return self.destroy(request, *args, **kwargs)
 
 class LoginView(APIView):
-    def post(self, request):
+    def post(self, request, *args, **kwargs):
         serializer = LoginSerializer(data=request.data)
-        
         if serializer.is_valid():
-            print(f"[DEBUG] Login data validated for email: {request.data.get('email')}")  # Debugging line
-            
-        else:
-            print(f"[DEBUG] Login validation failed for email: {request.data.get('email')}")  # Debugging line
-            print(f"[DEBUG] Errors: {serializer.errors}")  # Debugging line
-            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-        
+            # Log the validated email, as mentioned in your debug message
+            print(f"[DEBUG] Login data validated for email: {serializer.validated_data['email']}")
+            # Return a Response with the validated data
+            return Response(serializer.validated_data, status=status.HTTP_200_OK)
+        # Return a Response with errors if validation fails
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 # for creating existing accounts of the current user
 class AccountView(generics.ListAPIView):
@@ -81,6 +87,3 @@ class FetchAccountView(generics.RetrieveAPIView):
             return Response(Account.objects.filter(user=user), status=status.HTTP_200_OK)
         else:
             return Response({"detail": "No accounts found for the user."}, status=status.HTTP_200_OK)
-            
-        
-        
