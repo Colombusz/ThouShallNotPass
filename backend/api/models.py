@@ -4,6 +4,7 @@ import random
 import string
 from django.core.exceptions import ValidationError
 import hashlib
+import bcrypt
 
 class Role(models.Model):
     ROLE_CHOICES = [
@@ -36,9 +37,9 @@ class User(models.Model):
     role = models.ForeignKey(Role, on_delete=models.SET_NULL, null=True, related_name='users')
 
     def save(self, *args, **kwargs):
-        # Hash the password if it isn't hashed
-        if not self.password.startswith("pbkdf2_"):
-            self.password = make_password(self.password)
+        # Hash the password using bcrypt if it isn't hashed
+        if not self.password.startswith("$2b$"):
+            self.password = bcrypt.hashpw(self.password.encode('utf-8'), bcrypt.gensalt()).decode('utf-8')
 
         # Assign default 'user' role if not set
         if self.role is None:
@@ -54,9 +55,9 @@ class User(models.Model):
     def __str__(self):
         return self.email
     
+    
 class Password(models.Model):
     password = models.CharField(max_length=255)
-    
     def save(self, *args, **kwargs):
        
         if not self.password.startswith('pbkdf2_'):  

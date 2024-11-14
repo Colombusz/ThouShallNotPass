@@ -9,11 +9,10 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
 
+# for delete purposes
+import time
+from django.db import transaction, OperationalError
 
-
-class UserListView(generics.ListAPIView):
-    queryset = User.objects.all()
-    serializer_class = UserSerializer
 
 # class UserCreateView(generics.CreateAPIView):
 #     queryset = User.objects.all()
@@ -27,6 +26,7 @@ class UserListView(generics.ListAPIView):
 
 
 ##Frontend Registration connected
+# register/create user
 class UserCreateView(generics.CreateAPIView):
     queryset = User.objects.all()
     serializer_class = UserSerializer
@@ -44,8 +44,35 @@ class UserCreateView(generics.CreateAPIView):
             "user": UserSerializer(user).data,
             "passphrase": passphrase  # Include passphrase here
         }, status=status.HTTP_201_CREATED)
+        
 
+#read/display user
+class UserListView(generics.ListAPIView):
+    queryset = User.objects.all()
+    serializer_class = UserSerializer
+        
+# update user
+class UserUpdateView(generics.UpdateAPIView):
+    queryset = User.objects.all()
+    serializer_class = UserSerializer
 
+    def put(self, request, *args, **kwargs):
+        return self.update(request, *args, **kwargs)
+
+    def patch(self, request, *args, **kwargs):
+        return self.partial_update(request, *args, **kwargs)
+    
+    
+ # delete user
+class UserDeleteView(generics.DestroyAPIView):
+    queryset = User.objects.all()
+    serializer_class = UserSerializer
+
+    def delete(self, request, *args, **kwargs):
+        return self.destroy(request, *args, **kwargs)
+        
+    
+        
 class LoginView(APIView):
     def post(self, request):
         serializer = LoginSerializer(data=request.data)
