@@ -38,19 +38,22 @@ class LoginSerializer(serializers.Serializer):
         except User.DoesNotExist:
             raise serializers.ValidationError("Invalid email or password.")
 
-        if not check_password(password, user.password):
+        # Validate the password using bcrypt
+        if not bcrypt.checkpw(password.encode('utf-8'), user.password.encode('utf-8')):
             raise serializers.ValidationError("Invalid email or password.")
 
-        # Check the passphrase with user.user_passphrase.passphrase
+        # Check the passphrase
         if not user.user_passphrase or user.user_passphrase.passphrase != passphrase:
             raise serializers.ValidationError("Invalid passphrase.")
 
+        # Generate tokens for the user if authentication is successful
         refresh = RefreshToken.for_user(user)
         data["refresh"] = str(refresh)
         data["access"] = str(refresh.access_token)
         data["user_id"] = user.id
 
         return data
+    
 class PasswordSerializer(serializers.ModelSerializer):   
     class Meta:
         model = Password

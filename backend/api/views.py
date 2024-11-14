@@ -72,18 +72,16 @@ class UserDeleteView(generics.DestroyAPIView):
         return self.destroy(request, *args, **kwargs)
         
     
-        
 class LoginView(APIView):
-    def post(self, request):
+    def post(self, request, *args, **kwargs):
         serializer = LoginSerializer(data=request.data)
-        
         if serializer.is_valid():
-            print(f"[DEBUG] Login data validated for email: {request.data.get('email')}")  # Debugging line
-            
-        else:
-            print(f"[DEBUG] Login validation failed for email: {request.data.get('email')}")  # Debugging line
-            print(f"[DEBUG] Errors: {serializer.errors}")  # Debugging line
-            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+            # Log the validated email, as mentioned in your debug message
+            print(f"[DEBUG] Login data validated for email: {serializer.validated_data['email']}")
+            # Return a Response with the validated data
+            return Response(serializer.validated_data, status=status.HTTP_200_OK)
+        # Return a Response with errors if validation fails
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
         
 
 # for querying existing accounts of the current user
