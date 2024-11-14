@@ -1,3 +1,4 @@
+
 from rest_framework import serializers
 from .models import User, Role, Passphrase, Account, Password, Analysis
 from rest_framework_simplejwt.tokens import RefreshToken
@@ -11,9 +12,15 @@ class RoleSerializer(serializers.ModelSerializer):
         fields = ['role']
 
 class PassphraseSerializer(serializers.ModelSerializer):
+    original_passphrase = serializers.SerializerMethodField()
+
     class Meta:
         model = Passphrase
-        fields = ['passphrase']
+        fields = ['passphrase', 'original_passphrase']
+
+    def get_original_passphrase(self, obj):
+        return getattr(obj, '_original_passphrase', None)
+
 class UserSerializer(serializers.ModelSerializer):
     role = RoleSerializer(read_only=True)
     passphrase = PassphraseSerializer(source='user_passphrase', read_only=True)  # Updated to use 'user_passphrase'
@@ -22,7 +29,13 @@ class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = ['email', 'fname', 'password', 'phone', 'role', 'passphrase']
-        
+
+    def create(self, validated_data):
+        user = super().create(validated_data)
+        if hasattr(user, '_original_passphrase'):
+            user.passphrase = user._original_passphrase
+        return user
+
 class LoginSerializer(serializers.Serializer):
     email = serializers.EmailField()
     password = serializers.CharField(write_only=True)
@@ -43,7 +56,7 @@ class LoginSerializer(serializers.Serializer):
             raise serializers.ValidationError("Invalid email or password.")
 
         # Check the passphrase
-        if not user.user_passphrase or user.user_passphrase.passphrase != passphrase:
+        if not user.user_passphrase or not bcrypt.checkpw(passphrase.encode('utf-8'), user.user_passphrase.passphrase.encode('utf-8')):
             raise serializers.ValidationError("Invalid passphrase.")
 
         # Generate tokens for the user if authentication is successful
@@ -53,15 +66,15 @@ class LoginSerializer(serializers.Serializer):
         data["user_id"] = user.id
 
         return data
-    
-class PasswordSerializer(serializers.ModelSerializer):   
+
+class PasswordSerializer(serializers.ModelSerializer):
     class Meta:
         model = Password
         fields = ['password']
 
 class AccountSerializer(serializers.ModelSerializer):
     user = UserSerializer(read_only=True)
-    password = PasswordSerializer(read_only=True)       
+    password = PasswordSerializer(read_only=True)
     class Meta:
         model = Account
         fields = ['name', 'description', 'username', 'password_id', 'user_id']
@@ -81,54 +94,48 @@ class PasswordHasher(serializers.ModelSerializer):
         # Only hash the password, no saving
         return bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt()).decode('utf-8')
 
-
-# This will be used for the Entropy mah meeeeeeen
+# This will be used for the Entropy calculation
 def calculate_entropy(password):
-                """Calculate password entropy in bits."""
-                length = len(password)
-                pool_size = 0
-                
-                # Estimate pool size based on character types
-                if any(c.islower() for c in password): pool_size += 26
-                if any(c.isupper() for c in password): pool_size += 26
-                if any(c.isdigit() for c in password): pool_size += 10
-                if any(c in '!@#$%^&*()-_=+[]{};:,.<>/?' for c in password): pool_size += 32  # Special chars
-                
-                # Entropy formula: length * log2(pool_size)
-                entropy = length * math.log2(pool_size) if pool_size > 0 else 0
-                return entropy
+    """Calculate password entropy in bits."""
+    length = len(password)
+    pool_size = 0
+
+    # Estimate pool size based on character types
+    if any(c.islower() for c in password): pool_size += 26
+    if any(c.isupper() for c in password): pool_size += 26
+    if any(c.isdigit() for c in password): pool_size += 10
+    if any(c in '!@#$%^&*()-_=+[]{};:,.<>/?' for c in password): pool_size += 32  # Special chars
+
+    # Entropy formula: length * log2(pool_size)
+    entropy = length * math.log2(pool_size) if pool_size > 0 else 0
+    return entropy
 
 class CreateAccountSerializer(serializers.ModelSerializer):
     class Meta:
         model = Account
         fields = ['name', 'description', 'username', 'password_id']
-    
+
     def validate(self, data):
         name = data.get('name')
         description = data.get('description')
         username = data.get('username')
         password = data.get('password')
 
-       
         if Account.objects.filter(username=username).exists():
             raise serializers.ValidationError("Username must be unique.")
-        
-       
+
         password_hasher = PasswordHasher()
         hashed_password = password_hasher.hash(password)
 
-        
         password_instance = Password.objects.create(password=hashed_password)
 
-        
         account = Account(
             name=name,
             description=description,
             username=username,
             user=self.context['request'].user,
-            password=password_instance 
+            password=password_instance
         )
         account.save()
 
         return data
-

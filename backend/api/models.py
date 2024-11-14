@@ -1,3 +1,4 @@
+
 from django.db import models
 from django.contrib.auth.hashers import make_password
 import random
@@ -5,6 +6,7 @@ import string
 from django.core.exceptions import ValidationError
 import hashlib
 import bcrypt
+
 
 class Role(models.Model):
     ROLE_CHOICES = [
@@ -18,13 +20,21 @@ class Role(models.Model):
 
 class Passphrase(models.Model):
     user = models.OneToOneField('User', related_name='user_passphrase', on_delete=models.CASCADE)
-    passphrase = models.CharField(max_length=4, blank=True, null=True)
+    passphrase = models.CharField(max_length=255, blank=True, null=True)
 
     def save(self, *args, **kwargs):
         # Only generate a passphrase if it is not already set
         if not self.passphrase:
-            self.passphrase = ''.join(random.choices(string.ascii_uppercase, k=4))  # Generate a random 4-letter passphrase
+            original_passphrase = self.generate_passphrase()
+            self.passphrase = bcrypt.hashpw(original_passphrase.encode('utf-8'), bcrypt.gensalt()).decode('utf-8')
+            self._original_passphrase = original_passphrase
         super().save(*args, **kwargs)
+
+    def generate_passphrase(self):
+        # Generate a random 4-word passphrase from a fixed list of words
+        fixed_words = ['apple', 'banana', 'cherry', 'date', 'elderberry', 'fig', 'grape', 'honeydew']
+        words = random.sample(fixed_words, 4)
+        return ' '.join(words)
 
     def __str__(self):
         return self.passphrase
@@ -50,40 +60,37 @@ class User(models.Model):
 
         # Now create a Passphrase related to the user if it doesn't already exist
         if not hasattr(self, 'user_passphrase'):
-            Passphrase.objects.create(user=self)  # Automatically generates a 4-letter passphrase
+            passphrase_instance = Passphrase.objects.create(user=self)  # Automatically generates a 4-word passphrase
+            self._original_passphrase = passphrase_instance._original_passphrase
 
     def __str__(self):
         return self.email
-    
-    
+
 class Password(models.Model):
     password = models.CharField(max_length=255)
     def save(self, *args, **kwargs):
-       
-        if not self.password.startswith('pbkdf2_'):  
+        if not self.password.startswith('pbkdf2_'):
             self.password = make_password(self.password)
-        super(Account, self).save(*args, **kwargs)
-    
+        super(Password, self).save(*args, **kwargs)
+
     def __str__(self):
-        return self
-            
+        return self.password
+
 class Account(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='accounts')
     name = models.CharField(max_length=100)
     description = models.CharField(max_length=100)
     username = models.CharField(max_length=100)
     password = models.OneToOneField(Password, on_delete=models.CASCADE, related_name='accounts')
-    
+
     def __str__(self):
-        return self
-    
-    
-    
+        return self.name
+
 class Analysis(models.Model):
     password = models.OneToOneField(Password, on_delete=models.CASCADE, related_name='analysis')
     entropy = models.FloatField(null=True, blank=True)
     estimated_cracking_time = models.CharField(max_length=100, null=True, blank=True)
     remarks = models.CharField(max_length=100)
-    
+
     def __str__(self):
-        return self
+        return self.remarks

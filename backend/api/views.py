@@ -1,3 +1,5 @@
+
+
 # Description: Views for the users app.
 
 from rest_framework import generics
@@ -9,23 +11,6 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
 
-# for delete purposes
-import time
-from django.db import transaction, OperationalError
-
-
-# class UserCreateView(generics.CreateAPIView):
-#     queryset = User.objects.all()
-#     serializer_class = UserSerializer
-
-#     def perform_create(self, serializer):
-#         # Fetch the 'user' role or create it if it doesn't exist
-#         role, created = Role.objects.get_or_create(role='user')
-#         user = serializer.save(role=role)
-#         # The passphrase is automatically created through the User model's save method
-
-
-##Frontend Registration connected
 # register/create user
 class UserCreateView(generics.CreateAPIView):
     queryset = User.objects.all()
@@ -36,21 +21,20 @@ class UserCreateView(generics.CreateAPIView):
         role, created = Role.objects.get_or_create(role='user')
         user = serializer.save(role=role)
         
-        # Fetch the passphrase generated for this user
-        passphrase = user.user_passphrase.passphrase
+        # Fetch the original passphrase generated for this user
+        original_passphrase = getattr(user, '_original_passphrase', None)
         
         # Send passphrase as part of the response
         return Response({
             "user": UserSerializer(user).data,
-            "passphrase": passphrase  # Include passphrase here
+            "passphrase": original_passphrase  # Include original passphrase here
         }, status=status.HTTP_201_CREATED)
-        
 
-#read/display user
+# read/display user
 class UserListView(generics.ListAPIView):
     queryset = User.objects.all()
     serializer_class = UserSerializer
-        
+
 # update user
 class UserUpdateView(generics.UpdateAPIView):
     queryset = User.objects.all()
@@ -61,17 +45,15 @@ class UserUpdateView(generics.UpdateAPIView):
 
     def patch(self, request, *args, **kwargs):
         return self.partial_update(request, *args, **kwargs)
-    
-    
- # delete user
+
+# delete user
 class UserDeleteView(generics.DestroyAPIView):
     queryset = User.objects.all()
     serializer_class = UserSerializer
 
     def delete(self, request, *args, **kwargs):
         return self.destroy(request, *args, **kwargs)
-        
-    
+
 class LoginView(APIView):
     def post(self, request, *args, **kwargs):
         serializer = LoginSerializer(data=request.data)
@@ -82,16 +64,13 @@ class LoginView(APIView):
             return Response(serializer.validated_data, status=status.HTTP_200_OK)
         # Return a Response with errors if validation fails
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-        
 
 # for querying existing accounts of the current user
 class AccountView(generics.ListAPIView):
     def post(self, request):
-        serializer = CreateAccountSerializer(data = request.data)
+        serializer = CreateAccountSerializer(data=request.data)
         if serializer.is_valid():
-           return Response(serializer.validated_data, status=status.HTTP_200_OK)
-       
-        
+            return Response(serializer.validated_data, status=status.HTTP_200_OK)
 
 class FetchAccountView(generics.RetrieveAPIView):
     def get_queryset(self):
@@ -100,6 +79,3 @@ class FetchAccountView(generics.RetrieveAPIView):
             return Response(Account.objects.filter(user=user), status=status.HTTP_200_OK)
         else:
             return Response({"detail": "No accounts found for the user."}, status=status.HTTP_200_OK)
-            
-        
-        
