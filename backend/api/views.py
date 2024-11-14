@@ -2,7 +2,7 @@
 
 from rest_framework import generics
 from .models import User, Role, Account, Passphrase, Password, Analysis
-from .serializers import UserSerializer, LoginSerializer, CreateAccountSerializer, PasswordSerializer, AccountSerializer
+from .serializers import UserSerializer, LoginSerializer, CreateAccountSerializer, PasswordHasher, AccountSerializer
 
 # for login process
 from rest_framework.views import APIView
@@ -59,14 +59,20 @@ class LoginView(APIView):
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
         
 
-# for querying existing accounts of the current user
+# for creating existing accounts of the current user
 class AccountView(generics.ListAPIView):
     def post(self, request):
         serializer = CreateAccountSerializer(data = request.data)
-        if serializer.is_valid():
-           return Response(serializer.validated_data, status=status.HTTP_200_OK)
-       
-        
+        serializer2 = PasswordHasher(data = request.data)
+        # return Response(data = request.data, status=status.HTTP_200_OK)
+        if serializer.is_valid() and serializer2.is_valid():
+            data = serializer.validated_data
+            password = serializer2.validated_data
+            data['password'] = password
+            return Response(serializer.createAcc(data), status=status.HTTP_200_OK)
+        else:
+            return Response({"detail": "No accounts found for the user."}, status=status.HTTP_400_BAD_REQUEST)
+
 
 class FetchAccountView(generics.RetrieveAPIView):
     def get_queryset(self):

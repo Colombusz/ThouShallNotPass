@@ -5,6 +5,7 @@ from django.contrib.auth.hashers import check_password
 import bcrypt
 import math
 
+
 class RoleSerializer(serializers.ModelSerializer):
     class Meta:
         model = Role
@@ -74,9 +75,35 @@ class PasswordHasher(serializers.ModelSerializer):
         model = Password
         fields = ['password']
 
-    def hash(self, password):
-        # Only hash the password, no saving
-        return bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt()).decode('utf-8')
+    def validate(self, data):
+        # Retrieve the password from the input data
+        password = data.get('password')
+
+        # Check if the password is empty before proceeding with hashing
+        if not password:
+            raise serializers.ValidationError("Password cannot be empty.")
+        
+        # Return the validated data
+        return data
+
+    def hash(self, data, account_id):
+        # Extract the password from the data
+        password = data.get('password')
+
+        # Check if the password is provided
+        if not password:
+            raise serializers.ValidationError("Password cannot be empty.")
+
+        # Hash the password using bcrypt
+        hashed_pw = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt()).decode('utf-8')
+
+        # Create a Password instance and associate it with the account_id
+        paso = Password(password=hashed_pw, account_id=account_id)
+
+        # Save the Password instance to the database
+        paso.save()
+
+        return paso  # Return the Password instance (optional)
 
 
 # This will be used for the Entropy mah meeeeeeen
@@ -98,34 +125,39 @@ def calculate_entropy(password):
 class CreateAccountSerializer(serializers.ModelSerializer):
     class Meta:
         model = Account
-        fields = ['name', 'description', 'username', 'password_id']
+        fields = ['name', 'description', 'username']
     
     def validate(self, data):
-        name = data.get('name')
-        description = data.get('description')
-        username = data.get('username')
-        password = data.get('password')
+        return data
+    
+    def createAcc(self, data):
+        
+        name = data['name']
+        description = data['description']
+        username = data['username']
+        psw = PasswordHasher()
+        # psw = psw.hash(data['password'], 1)
+        # return psw
+        # password = data['password']['password']
+    
+   
+        
+        # if Account.objects.filter(username=username).exists():
+            # raise serializers.ValidationError("Username must be unique.")
 
        
-        if Account.objects.filter(username=username).exists():
-            raise serializers.ValidationError("Username must be unique.")
-        
-       
-        password_hasher = PasswordHasher()
-        hashed_password = password_hasher.hash(password)
-
-        
-        password_instance = Password.objects.create(password=hashed_password)
-
-        
         account = Account(
             name=name,
             description=description,
             username=username,
-            user=self.context['request'].user,
-            password=password_instance 
+            user_id="1", # for debugging purposes only
+            # user_id=self.context['request'].user,
         )
         account.save()
-
-        return data
-
+        # return account
+        acc_id = account.id
+        psw = psw.hash(data['password'], acc_id)
+        # return psw
+        # return data['password']
+        
+        return "Account created successfully."

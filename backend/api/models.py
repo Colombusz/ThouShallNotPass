@@ -54,24 +54,22 @@ class User(models.Model):
     def __str__(self):
         return self.email
     
-class Password(models.Model):
-    password = models.CharField(max_length=255)
-    
-    def save(self, *args, **kwargs):
-       
-        if not self.password.startswith('pbkdf2_'):  
-            self.password = make_password(self.password)
-        super(Account, self).save(*args, **kwargs)
-    
-    def __str__(self):
-        return self
             
 class Account(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='accounts')
     name = models.CharField(max_length=100)
     description = models.CharField(max_length=100)
     username = models.CharField(max_length=100)
-    password = models.OneToOneField(Password, on_delete=models.CASCADE, related_name='accounts')
+    
+    
+    
+    def __str__(self):
+        return self
+
+class Password(models.Model):
+    password = models.CharField(max_length=255)
+    account = models.ForeignKey(Account, on_delete=models.CASCADE)
+   
     
     def __str__(self):
         return self
