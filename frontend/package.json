@@ -22,7 +22,8 @@
     "react-scroll": "^1.9.0",
     "recharts": "^2.13.3",
     "styled-components": "^6.1.13",
-    "yup": "^1.4.0"
+    "yup": "^1.4.0",
+    "zxcvbn": "^4.4.2"
   },
   "devDependencies": {
     "@eslint/js": "^9.13.0",
