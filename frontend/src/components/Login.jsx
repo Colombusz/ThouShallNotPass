@@ -4,6 +4,7 @@ import { useFormik } from "formik";
 import * as Yup from "yup";
 import * as Components from "../Components";
 import { toast } from "react-hot-toast";
+import { useNavigate } from "react-router-dom"; // Import useNavigate
 
 // Define the CSS style for error messages
 const errorStyle = {
@@ -13,6 +14,7 @@ const errorStyle = {
 
 const Login = ({ onLoginSuccess }) => {
   const [signIn, toggle] = useState(true);
+  const navigate = useNavigate();
 
   // Yup validation schemas
   const signUpValidationSchema = Yup.object({
@@ -77,10 +79,19 @@ const Login = ({ onLoginSuccess }) => {
         const response = await axios.post("http://127.0.0.1:8000/api/users/login", values);
         console.log("Sign In successful:", response.data);
 
-        const { access } = response.data;
+        const { role, access } = response.data;
         sessionStorage.setItem("accessToken", access);
+        sessionStorage.setItem("role", role);
         toast.success("Sign In successful!");
+
         onLoginSuccess(); // Call the callback function
+        if (role === "admin") {
+          navigate("/admin"); // Redirect to the admin dashboard
+        } else if (role === "user") {
+          navigate("/"); // Redirect regular user to the homepage
+        } else {
+          toast.error("Unauthorized access");
+        }
       } catch (error) {
         console.error("Sign In error:", error.response ? error.response.data : error.message);
         toast.error("Sign In failed. Please try again.");

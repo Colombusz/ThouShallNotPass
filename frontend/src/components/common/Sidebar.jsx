@@ -1,7 +1,8 @@
 import { BarChart2, Users, TrendingUp, Settings, Menu, LogOut } from "lucide-react";
 import { useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import { toast } from "react-hot-toast";
 
 const SIDEBAR_ITEMS = [
   {
@@ -14,8 +15,16 @@ const SIDEBAR_ITEMS = [
   { name: "Analytics", icon: TrendingUp, color: "text-[#2F58CD]", href: "/admin/analytics" }, // Teal for a fresh look
   { name: "Settings", icon: Settings, color: "text-[#3795BD]", href: "/admin/settings" }, // Light Blue for settings
 ];
+
 const Sidebar = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
+  const navigate = useNavigate(); // Initialize useNavigate
+
+  const handleLogout = () => {
+    sessionStorage.clear(); // Clear session storage
+    navigate("/"); // Navigate to the homepage
+    toast.success("Logged out successfully"); 
+  };
 
   return (
     <motion.div
@@ -59,20 +68,19 @@ const Sidebar = () => {
 
         {/* Log Out Button */}
         <div className="mt-auto">
-          <Link to="/logout">
-            <motion.div
-              className="flex items-center p-4 text-lg font-medium text-black rounded-lg hover:bg-[#A0E9FF] transition-colors mt-2"
-              initial={{ opacity: 0, width: 0 }}
-              animate={{ opacity: 1, width: "auto" }}
-              exit={{ opacity: 0, width: 0 }}
-              transition={{ duration: 0.3 }}
-            >
-              <LogOut size={24} className="text-[#FF0000]" />
-              {isSidebarOpen && (
-                <motion.span className="ml-4 text-[#FF0000]">Log Out</motion.span>
-              )}
-            </motion.div>
-          </Link>
+          <motion.button
+            onClick={handleLogout}
+            className="flex items-center p-4 text-lg font-medium text-black rounded-lg hover:bg-[#A0E9FF] transition-colors mt-2 w-full"
+            initial={{ opacity: 0, width: 0 }}
+            animate={{ opacity: 1, width: "auto" }}
+            exit={{ opacity: 0, width: 0 }}
+            transition={{ duration: 0.3 }}
+          >
+            <LogOut size={24} className="text-[#FF0000]" />
+            {isSidebarOpen && (
+              <motion.span className="ml-4 text-[#FF0000]">Log Out</motion.span>
+            )}
+          </motion.button>
         </div>
       </div>
     </motion.div>

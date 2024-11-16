@@ -65,6 +65,7 @@ class LoginSerializer(serializers.Serializer):
         data["refresh"] = str(refresh)
         data["access"] = str(refresh.access_token)
         data["user_id"] = user.id
+        data["role"] = user.role.role
 
         return data
 
