@@ -1,15 +1,18 @@
 import React, { useState, useEffect } from "react";
-import { Link } from "react-scroll";
-import logo from '../assets/img/logo.png';
-import Button from "./Button";
+import { Link as RouterLink, useNavigate } from "react-router-dom";
 import { AiOutlineMenuUnfold, AiOutlineClose } from "react-icons/ai";
-import Login from "../components/Login";
 import { toast } from "react-hot-toast";
+import logo from "../assets/img/logo.png"; // Ensure this path is correct
+import profilePic from "../assets/img/profile.png"; // Adjust this path to your actual profile image
+import Button from "./Button";
+import Login from "../components/Login";
 
 const Navbar = () => {
   const [menu, setMenu] = useState(false);
   const [showLoginModal, setShowLoginModal] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [dropdownOpen, setDropdownOpen] = useState(false);
+  const navigate = useNavigate();
 
   useEffect(() => {
     const token = sessionStorage.getItem("accessToken");
@@ -28,10 +31,15 @@ const Navbar = () => {
     setShowLoginModal(!showLoginModal);
   };
 
+  const toggleDropdown = () => {
+    setDropdownOpen(!dropdownOpen);
+  };
+
   const handleLogout = () => {
     sessionStorage.removeItem("accessToken");
     setIsLoggedIn(false);
     toast.success("Logged out successfully!");
+    navigate("/");
   };
 
   const handleLoginSuccess = () => {
@@ -48,38 +56,59 @@ const Navbar = () => {
         </div>
 
         <nav className="hidden md:flex flex-row items-center text-2xl font-bold gap-8 text-white">
-          <Link
-            to="home"
-            spy={true}
-            smooth={true}
-            duration={500}
+          <RouterLink
+            to="/"
             className="group relative inline-block cursor-pointer hover:text-[#a7f7ff]"
+            onClick={closeMenu}
           >
             Home
-          </Link>
-          <Link
-            to="menu"
-            spy={true}
-            smooth={true}
-            duration={500}
+          </RouterLink>
+          <RouterLink
+            to="/menu"
             className="group relative inline-block cursor-pointer hover:text-[#a7f7ff]"
+            onClick={closeMenu}
           >
             Accounts
-          </Link>
-          <Link
-            to="about"
-            spy={true}
-            smooth={true}
-            duration={500}
+          </RouterLink>
+          <RouterLink
+            to="/about"
             className="group relative inline-block cursor-pointer hover:text-[#a7f7ff]"
+            onClick={closeMenu}
           >
             About Us
-          </Link>
+          </RouterLink>
         </nav>
 
-        <div className="hidden lg:flex">
+        <div className="hidden lg:flex items-center gap-4">
           {isLoggedIn ? (
-            <Button title="Logout" onClick={handleLogout} />
+            <>
+              {/* Profile Picture with Dropdown */}
+              <div className="relative">
+                <img
+                  src={profilePic}
+                  alt="Profile"
+                  className="h-11 w-11 rounded-full cursor-pointer"
+                  onClick={toggleDropdown}
+                />
+                {dropdownOpen && (
+                  <div className="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg z-20">
+                    <RouterLink
+                      to="/profile"
+                      className="block px-4 py-2 text-black hover:bg-gray-200"
+                      onClick={() => setDropdownOpen(false)}
+                    >
+                      View Profile
+                    </RouterLink>
+                    <button
+                      onClick={handleLogout}
+                      className="block w-full text-left px-4 py-2 text-black hover:bg-gray-200"
+                    >
+                      Logout
+                    </button>
+                  </div>
+                )}
+              </div>
+            </>
           ) : (
             <Button title="Login" onClick={toggleLoginModal} />
           )}
@@ -100,46 +129,50 @@ const Navbar = () => {
           menu ? "translate-x-0" : "-translate-x-full"
         } lg:hidden flex flex-col absolute bg-black text-white left-0 top-16 font-semibold text-2xl text-center pt-8 pb-4 gap-8 w-full h-fit transition-transform duration-300`}
       >
-        <Link
-          to="home"
-          spy={true}
-          smooth={true}
-          duration={500}
+        <RouterLink
+          to="/"
           className="hover:text-brightColor transition-all cursor-pointer"
           onClick={closeMenu}
         >
           Home
-        </Link>
-        <Link
-          to="menu"
-          spy={true}
-          smooth={true}
-          duration={500}
+        </RouterLink>
+        <RouterLink
+          to="/menu"
           className="hover:text-brightColor transition-all cursor-pointer"
           onClick={closeMenu}
         >
           Menu
-        </Link>
-        <Link
-          to="about"
-          spy={true}
-          smooth={true}
-          duration={500}
+        </RouterLink>
+        <RouterLink
+          to="/about"
           className="hover:text-brightColor transition-all cursor-pointer"
           onClick={closeMenu}
         >
           About Us
-        </Link>
+        </RouterLink>
         {isLoggedIn ? (
-          <Button title="Logout" onClick={handleLogout} />
+          <button
+            className="text-white bg-red-500 px-4 py-2 rounded-md"
+            onClick={handleLogout}
+          >
+            Logout
+          </button>
         ) : (
-          <Button title="Login" onClick={toggleLoginModal} />
+          <button
+            className="text-white bg-green-500 px-4 py-2 rounded-md"
+            onClick={toggleLoginModal}
+          >
+            Login
+          </button>
         )}
       </div>
 
       {/* Modal for Login */}
       {showLoginModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center" style={{ zIndex: 100 }}>
+        <div
+          className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center"
+          style={{ zIndex: 100 }}
+        >
           <div className="bg-white p-8 rounded-lg">
             <button
               className="text-black font-bold text-xl mb-4"
@@ -147,7 +180,7 @@ const Navbar = () => {
             >
               X
             </button>
-            <Login onLoginSuccess={handleLoginSuccess} /> {/* Pass the callback */}
+            <Login onLoginSuccess={handleLoginSuccess} />
           </div>
         </div>
       )}

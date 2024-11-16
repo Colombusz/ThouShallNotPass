@@ -1,19 +1,20 @@
-
-
 import React, { useState } from "react";
 import { toast } from "react-hot-toast";
+import { useNavigate } from "react-router-dom"; // Import useNavigate hook
 import Login from "../components/Login";
 
 const MenuCard = (props) => {
   const [showLoginPrompt, setShowLoginPrompt] = useState(false);
   const [showLoginModal, setShowLoginModal] = useState(false);
+  const navigate = useNavigate(); // Initialize useNavigate hook
 
   const handleCheckPasswordStrength = () => {
     const token = sessionStorage.getItem("accessToken");
     if (!token) {
       setShowLoginPrompt(true);
     } else {
-      // Proceed with the password strength check
+      // Navigate to accountpage if user is logged in
+      navigate("/accountpage");
       toast.success("Proceeding with password strength check...");
     }
   };
@@ -24,7 +25,7 @@ const MenuCard = (props) => {
   };
 
   return (
-    <div className="w-full lg:w-1/4 bg-white p-3 rounded-lg">
+    <div className="w-full lg:w-1/4 bg-white p-3 rounded-lg pt-5 mt-5"> {/* Added mt-5 for margin-top */}
       <div>
         <img className="rounded-xl" src={props.img} alt="img1" />
       </div>
@@ -44,7 +45,7 @@ const MenuCard = (props) => {
           </div>
         </div>
       </div>
-
+  
       {/* Modal for Login Prompt */}
       {showLoginPrompt && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center" style={{ zIndex: 100 }}>
@@ -59,7 +60,7 @@ const MenuCard = (props) => {
           </div>
         </div>
       )}
-
+  
       {/* Modal for Login */}
       {showLoginModal && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center" style={{ zIndex: 100 }}>
