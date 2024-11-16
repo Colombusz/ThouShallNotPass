@@ -8,11 +8,11 @@ const SIDEBAR_ITEMS = [
     name: "Overview",
     icon: BarChart2,
     color: "text-[#3A1078]", // Purple for better contrast
-    href: "/",
+    href: "/admin",
   },
-  { name: "Users", icon: Users, color: "text-[#4E31AA]", href: "/users" }, // Blue for better contrast
-  { name: "Analytics", icon: TrendingUp, color: "text-[#2F58CD]", href: "/analytics" }, // Teal for a fresh look
-  { name: "Settings", icon: Settings, color: "text-[#3795BD]", href: "/settings" }, // Light Blue for settings
+  { name: "Users", icon: Users, color: "text-[#4E31AA]", href: "/admin/users" }, // Blue for better contrast
+  { name: "Analytics", icon: TrendingUp, color: "text-[#2F58CD]", href: "/admin/analytics" }, // Teal for a fresh look
+  { name: "Settings", icon: Settings, color: "text-[#3795BD]", href: "/admin/settings" }, // Light Blue for settings
 ];
 const Sidebar = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);

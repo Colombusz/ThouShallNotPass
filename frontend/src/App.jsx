@@ -52,6 +52,7 @@
 
 import React from "react";
 import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
+import './App.css';
 // User side
 import Navbar from "./layouts/Navbar";
 import Home from "./components/Home";
