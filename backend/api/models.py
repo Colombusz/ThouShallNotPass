@@ -44,7 +44,7 @@ class User(models.Model):
     fname = models.CharField(max_length=100)
     password = models.CharField(max_length=255)  # Store hashed passwords
     phone = models.CharField(max_length=15)
-    role = models.ForeignKey(Role, on_delete=models.SET_NULL, null=True, related_name='users')
+    role = models.ForeignKey(Role, on_delete=models.CASCADE, null=True, related_name='users')
 
     def save(self, *args, **kwargs):
         # Hash the password using bcrypt if it isn't hashed
@@ -65,18 +65,6 @@ class User(models.Model):
 
     def __str__(self):
         return self.email
-    
-class Password(models.Model):
-    password = models.CharField(max_length=255)
-    
-    def save(self, *args, **kwargs):
-       
-        if not self.password.startswith('pbkdf2_'):  
-            self.password = make_password(self.password)
-        super(Account, self).save(*args, **kwargs)
-    
-    def __str__(self):
-        return self
             
 class Account(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='accounts')
@@ -91,11 +79,11 @@ class Account(models.Model):
 
 class Password(models.Model):
     password = models.CharField(max_length=255)
-    account = models.ForeignKey(Account, on_delete=models.CASCADE)
+    account = models.ForeignKey(Account, on_delete=models.CASCADE, related_name='passwords')
    
     
     def __str__(self):
-        return self.name
+        return self
 
 class Analysis(models.Model):
     password = models.OneToOneField(Password, on_delete=models.CASCADE, related_name='analysis')

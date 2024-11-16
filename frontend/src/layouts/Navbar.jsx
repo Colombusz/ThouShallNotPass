@@ -63,13 +63,20 @@ const Navbar = () => {
           >
             Home
           </RouterLink>
-          <RouterLink
-            to="/menu"
-            className="group relative inline-block cursor-pointer hover:text-[#a7f7ff]"
-            onClick={closeMenu}
-          >
-            Accounts
-          </RouterLink>
+
+          
+          {isLoggedIn ? (
+            <RouterLink
+              to="/menu"
+              className="group relative inline-block cursor-pointer hover:text-[#a7f7ff]"
+              onClick={closeMenu}
+            >
+              Accounts
+            </RouterLink>
+          ) : null}
+
+
+          
           <RouterLink
             to="/about"
             className="group relative inline-block cursor-pointer hover:text-[#a7f7ff]"

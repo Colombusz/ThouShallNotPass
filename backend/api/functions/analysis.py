@@ -18,6 +18,8 @@ def calculate_entropy(password):
     entropy = length * math.log2(pool_size) if pool_size > 0 else 0
     return entropy
 
+
+
 def pwned_api_check(password):
     sha1password = hashlib.sha1(password.encode('utf-8')).hexdigest().upper()
     first5_char, tail = sha1password[:5], sha1password[5:]
