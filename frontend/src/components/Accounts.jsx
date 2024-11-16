@@ -91,7 +91,7 @@ const Menu = () => {
             >
               X
             </button>
-            <AccountPage isVisible={showAccountModal} />
+            <AccountPage isVisible={showAccountModal} onClose={toggleAccountModal} />
           </div>
         </div>
       )}

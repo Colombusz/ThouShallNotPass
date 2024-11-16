@@ -149,7 +149,7 @@ const AccountPage = ({ isVisible, onClose }) => {
       <div
         className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center"
         style={{ zIndex: 100 }}
-        
+        onClick={onClose}
       >
         <div
           className="bg-white p-8 rounded-lg w-11/12 lg:w-8/12"
