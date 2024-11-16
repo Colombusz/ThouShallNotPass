@@ -3,6 +3,7 @@ import { FaEye, FaEyeSlash } from "react-icons/fa";
 import zxcvbn from "zxcvbn";
 import otherAppsLogo from "../assets/img/apps/other apps.png"; // Adjust the path as necessary
 
+
 const AccountPage = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [selectedApp, setSelectedApp] = useState("Google");
@@ -13,17 +14,21 @@ const AccountPage = () => {
   const [isChangingPassword, setIsChangingPassword] = useState(false);
   const [isPasswordChanged, setIsPasswordChanged] = useState(false);
 
+
   const togglePasswordVisibility = () => {
     setShowPassword(!showPassword);
   };
+
 
   const handleAppChange = (event) => {
     setSelectedApp(event.target.value);
   };
 
+
   const handleOtherAppNameChange = (event) => {
     setOtherAppName(event.target.value);
   };
+
 
   const handlePasswordChange = (event) => {
     const newPassword = event.target.value;
@@ -32,13 +37,16 @@ const AccountPage = () => {
     setPasswordStrength(strength);
   };
 
+
   const handleNewPasswordChange = (event) => {
     setNewPassword(event.target.value);
   };
 
+
   const handleChangePassword = () => {
     setIsChangingPassword(true);
   };
+
 
   const handleConfirmChangePassword = () => {
     setPassword(newPassword);
@@ -46,6 +54,7 @@ const AccountPage = () => {
     setIsChangingPassword(false);
     setIsPasswordChanged(true);
   };
+
 
   const appLogos = {
     Google: "https://upload.wikimedia.org/wikipedia/commons/2/2f/Google_2015_logo.svg",
@@ -55,6 +64,7 @@ const AccountPage = () => {
     Tiktok: "https://upload.wikimedia.org/wikipedia/en/a/a9/TikTok_logo.svg",
     Other: otherAppsLogo,
   };
+
 
   const getPasswordStrengthColor = (score) => {
     switch (score) {
@@ -72,6 +82,7 @@ const AccountPage = () => {
         return "bg-gray-500";
     }
   };
+
 
   const getPasswordSuggestions = (score) => {
     switch (score) {
@@ -105,6 +116,7 @@ const AccountPage = () => {
         return [];
     }
   };
+
 
   return (
     <div className="min-h-screen flex flex-col items-center justify-center bg-gradient-to-r from-[#0e397e] to-[#75a6a3] pb-8">
@@ -279,5 +291,6 @@ const AccountPage = () => {
     </div>
   );
 };
+
 
 export default AccountPage;
