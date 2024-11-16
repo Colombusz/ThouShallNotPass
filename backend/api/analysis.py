@@ -2,6 +2,7 @@
 import math
 import hashlib
 import requests
+import regex as re
 
 def calculate_entropy(password):
     """Calculate password entropy in bits."""
@@ -33,7 +34,7 @@ def pwned_api_check(password):
         if h == tail:
             return int(count)
     return 0
-
+leet_map = {"a": ["@", "4"], "o": ["0"], "s": ["$", "5"], "e": ["3"], "l": ["1"]}
 #to revert leetspeak back to its orig form
 def revert_leetspeak(password, leet_map):
 
@@ -126,49 +127,71 @@ def detect_mirrored(password):
   
     return password == password[::-1]
 
+def estimate_cracking_time(entropy, password):
+  
+    # 10 billion guesses per second
+    cracking_speed = 10e9
 
-# def evaluate_password(password):
-#     leet_map = {"a": ["@", "4"], "o": ["0"], "s": ["$", "5"], "e": ["3"], "l": ["1"]}
+    # Time to crack = (2^(entropy in bits)) / cracking speed
+    cracking_time = (2 ** entropy) / cracking_speed
+    intervals = [
+        ('years', 60 * 60 * 24 * 365),
+        ('days', 60 * 60 * 24),
+        ('hours', 60 * 60),
+        ('minutes', 60),
+        ('seconds', 1),
+    ]
+
+    result = []
+    breach_count = detect_common_pass(password)
+    if not (breach_count > 0 or detect_repeating(password) or detect_sequential(password) or detect_keyboard_pattern(password) or detect_mirrored(password) or revert_leetspeak(password, leet_map)):
+        for name, count in intervals:
+            value = cracking_time // count
+            if value:
+                cracking_time -= value * count
+                result.append(f"{int(value)} {name}")
+        return ', '.join(result) if result else "0 seconds"
+    else:
+        return "Password breached / Belonged to a pattern - Cracking time irrelevant"
     
-#     detected_patterns = []
+def remarks(password):
+    """Analyze password and return remarks."""
+    remarks = []
 
-#     print("Analyzing patterns...")
+    # Check for common passwords
+    breach_count = detect_common_pass(password)
+    if breach_count > 0:
+        remarks.append(f"Password breached {breach_count} times")
+    else:
+        remarks.append("Password not breached")
 
+    # Check for repeating characters
+    if detect_repeating(password):
+        remarks.append("Password contains repeating characters")
+    else:
+        remarks.append("Password does not contain repeating characters")
+
+    # Check for sequential characters
+    if detect_sequential(password):
+        remarks.append("Password contains sequential characters")
+    else:
+        remarks.append("Password does not contain sequential characters")
+
+    # Check for keyboard patterns
+    if detect_keyboard_pattern(password):
+        remarks.append("Password contains keyboard pattern")
+    else:
+        remarks.append("Password does not contain keyboard pattern")
+
+    # Check for mirrored passwords
+    if detect_mirrored(password):
+        remarks.append("Password is a mirrored string")
+    else:
+        remarks.append("Password is not a mirrored string")
     
-#     original_password = revert_leetspeak(password, leet_map)
+    if revert_leetspeak(password, leet_map) :
+        remarks.append("Password contains leetspeak")
+    else:
+        remarks.append("Password does not contain leetspeak")
 
-    
-#     if detect_repeating(original_password):
-#         detected_patterns.append("Repeating characters")
-
-#     if detect_sequential(original_password):
-#         detected_patterns.append("Sequential characters")
-
-#     if detect_keyboard_pattern(original_password):
-#         detected_patterns.append("Keyboard pattern")
-
-#     if detect_mirrored(original_password):
-#         detected_patterns.append("Mirrored characters")
-
-   
-#     breach_count = detect_common_pass(original_password)
-#     if breach_count >= 1000:  # Flag as common if found 1000 times
-#         detected_patterns.append(f"Common pass (found {breach_count} times in breaches)")
-
-#     if detected_patterns:
-#         print(f"Pattern(s) detected: {', '.join(detected_patterns)}")
-#     else:
-#         print("No obvious patterns detected.")
-
-   
-#     print("Checking if the password has been pwned...")
-#     total_breach_count = pwned_api_check(original_password)
-#     if total_breach_count:
-#         print(f"The password has been found {total_breach_count} times in data breaches!")
-#     else:
-#         print("The password has not been found in any data breaches.")
-
-#  pang testing
-# if __name__ == "__main__":
-#     password = input("Enter a password to analyze: ")
-#     evaluate_password(password)
+    return remarks

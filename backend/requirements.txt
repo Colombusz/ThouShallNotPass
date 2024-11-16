@@ -11,3 +11,4 @@ python-dotenv
 django-cors-headers
 bcrypt
 requests
+regex

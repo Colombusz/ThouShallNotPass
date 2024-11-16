@@ -5,6 +5,7 @@ from rest_framework_simplejwt.tokens import RefreshToken
 from django.contrib.auth.hashers import check_password
 import bcrypt
 import math
+from .analysis import calculate_entropy, remarks, estimate_cracking_time
 
 
 class RoleSerializer(serializers.ModelSerializer):
@@ -81,12 +82,6 @@ class AccountSerializer(serializers.ModelSerializer):
         model = Account
         fields = '__all__'
 
-class AnalysisSerializer(serializers.ModelSerializer):
-    password = PasswordSerializer(read_only=True)
-    class Meta:
-        model = Analysis
-        fields = ['entropy', 'estimated_cracking_time', 'remarks', 'password_id']
-
 class PasswordHasher(serializers.ModelSerializer):
     class Meta:
         model = Password
@@ -122,44 +117,115 @@ class PasswordHasher(serializers.ModelSerializer):
 
         return paso 
 
+
+class AnalysisSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Analysis
+        fields = ['entropy', 'estimated_cracking_time', 'remarks', 'password_id']
+    
+    def analyze(self, id, password):
+        entropy = calculate_entropy(password)
+        cracking_time = estimate_cracking_time(entropy, password)
+        states = remarks(password)
+        password_id = id
+        
+        analysis = Analysis(
+            entropy=entropy,
+            estimated_cracking_time=cracking_time,
+            remarks=states,
+            password_id=password_id,
+        )
+        analysis.save()
+        
+        return analysis
+
 class CreateAccountSerializer(serializers.ModelSerializer):
     class Meta:
         model = Account
-        fields = ['name', 'description', 'username']
+        fields = ['name', 'description', 'username', 'url']
     
     def validate(self, data):
         return data
     
-    def createAcc(self, data):
+    def createAcc(self, data, id):
         
         name = data['name']
         description = data['description']
         username = data['username']
-        psw = PasswordHasher()
-        # psw = psw.hash(data['password'], 1)
-        # return psw
-        # password = data['password']['password']
-    
-   
-        
-        # if Account.objects.filter(username=username).exists():
-            # raise serializers.ValidationError("Username must be unique.")
-
+        Acc_url = data['url']
        
+        if not id:
+           return False
+        psw = PasswordHasher()
+        
+        lyze = AnalysisSerializer()
         account = Account(
             name=name,
             description=description,
             username=username,
-            user_id="1", # for debugging purposes only
+            user_id = id, # fixed
+            url=Acc_url,
             # user_id=self.context['request'].user,
         )
+         # Check if URL exists
+        existing_account = Account.objects.filter(url=Acc_url).first()
+        if existing_account:
+        # URL exists, check if username matches
+            if existing_account.username == username:
+                return "An account with this URL and username already exists Please Change your username"
         account.save()
         # return account
         acc_id = account.id
         psw = psw.hash(data['password'], acc_id)
+        psw_id = psw.id
+        
+        lyze.analyze(psw_id, data['password'].get('password'))
         # return psw
         # return data['password']
         
         return "Account created successfully."
+
+
+class DeleteAccountSerializer(serializers.ModelSerializer):
+    def bura(self, pk):    
+        try:
+            account = Account.objects.get(id=pk)
+            pwd = Password.objects.get(account_id=account.id)
+            analysis = Analysis.objects.get(password_id=pwd.id)
+            
+            # Delete in reverse dependency order
+            analysis.delete()
+            pwd.delete()
+            account.delete()
+            
+            return "Account deleted successfully."
+        except Account.DoesNotExist:
+            return "Account not found."
+        except Password.DoesNotExist:
+            return "Password not found."
+        except Analysis.DoesNotExist:
+            return "Analysis not found."
+
+
+class UpdateAccountSerializer(serializers.ModelSerializer):
+    def update(self, id, data, password):
+        account = Account.objects.get(id=id)
+        account.name = data['name']
+        account.description = data['description']
+        account.username = data['username']
+        account.url = data['url']
+        account.save()
+        
+        password = Password.objects.get(account_id=id)
+        password.password = bcrypt.hashpw(data['password'].get('password').encode('utf-8'), bcrypt.gensalt()).decode('utf-8')
+        
+        analysis = Analysis.objects.get(password_id=password.id)
+        analysis.entropy = calculate_entropy(data['password'].get('password'))
+        analysis.estimated_cracking_time = estimate_cracking_time(analysis.entropy, data['password'].get('password'))
+        analysis.remarks = remarks(data['password'].get('password'))
+        return "Your account has been updated successfully."
+        
+
+   
     
     
