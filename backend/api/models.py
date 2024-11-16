@@ -71,6 +71,7 @@ class Account(models.Model):
     name = models.CharField(max_length=100)
     description = models.CharField(max_length=100)
     username = models.CharField(max_length=100)
+    url = models.CharField(max_length=255, default='example.com')
     
     
     
@@ -86,10 +87,10 @@ class Password(models.Model):
         return self
 
 class Analysis(models.Model):
-    password = models.OneToOneField(Password, on_delete=models.CASCADE, related_name='analysis')
+    password = models.OneToOneField(Password, on_delete=models.CASCADE, related_name='passwords')
     entropy = models.FloatField(null=True, blank=True)
     estimated_cracking_time = models.CharField(max_length=100, null=True, blank=True)
-    remarks = models.CharField(max_length=100)
+    remarks = models.CharField(max_length=255)
 
     def __str__(self):
         return self.remarks

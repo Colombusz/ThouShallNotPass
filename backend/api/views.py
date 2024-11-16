@@ -4,7 +4,7 @@
 
 from rest_framework import generics
 from .models import User, Role, Account, Passphrase, Password, Analysis
-from .serializers import UserSerializer, LoginSerializer, CreateAccountSerializer, PasswordHasher, AccountSerializer
+from .serializers import UserSerializer, LoginSerializer, CreateAccountSerializer, PasswordHasher, AccountSerializer, DeleteAccountSerializer, UpdateAccountSerializer
 
 # for login process
 from rest_framework.views import APIView
@@ -67,15 +67,22 @@ class LoginView(APIView):
 
 # for creating existing accounts of the current user
 class AccountView(generics.ListAPIView):
-    def post(self, request):
+    def post(self, request, pk):
         serializer = CreateAccountSerializer(data = request.data)
         serializer2 = PasswordHasher(data = request.data)
+        user_id = pk
         # return Response(data = request.data, status=status.HTTP_200_OK)
         if serializer.is_valid() and serializer2.is_valid():
             data = serializer.validated_data
             password = serializer2.validated_data
             data['password'] = password
-            return Response(serializer.createAcc(data), status=status.HTTP_200_OK)
+            
+            if not user_id:
+                return Response({"User doesn't exist"}, status=status.HTTP_400_BAD_REQUEST)
+            result = serializer.createAcc(data, pk)
+            
+            
+            return Response(result, status=status.HTTP_200_OK)
         else:
             return Response({"detail": "No accounts found for the user."}, status=status.HTTP_400_BAD_REQUEST)
 
@@ -107,3 +114,28 @@ class FetchAccountView(generics.ListAPIView):
                 return Response({"detail": "No accounts found for the given user ID."}, status=status.HTTP_404_NOT_FOUND)
         else:
             return Response({"detail": "User ID not provided."}, status=status.HTTP_400_BAD_REQUEST)
+        
+class DeleteAccountView(APIView):
+    def delete(self, request, pk, *args, **kwargs):
+        # Create a serializer instance and call the bura method
+        serializer = DeleteAccountSerializer()
+        result = serializer.bura(pk)
+        return Response({"message": result}, status=status.HTTP_200_OK)
+    
+class UpdateAccountView(APIView):
+    def put(self, request, pk, *args, **kwargs):
+        serializer = CreateAccountSerializer(data = request.data)
+        serializer2 = PasswordHasher(data = request.data)
+        execute = UpdateAccountSerializer()
+        Acc_id = pk
+        
+        # return Response(data = request.data, status=status.HTTP_200_OK)
+        if serializer.is_valid() and serializer2.is_valid():
+            password = serializer2.validated_data.get('password')
+            data = serializer.validated_data
+            result = execute.update(Acc_id, data, password)
+        else:
+            result = "Invalid data provided."
+            
+        return Response(result, status=status.HTTP_200_OK)
+            
