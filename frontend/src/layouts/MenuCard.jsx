@@ -40,7 +40,7 @@ const MenuCard = (props) => {
               className="px-6 py-1 border-2 border-[#212071] bg-[#a2b6e5] hover:text-[#4e66b6] transition-all rounded-full"
               onClick={handleCheckPasswordStrength}
             >
-              CHECK PASSWORD STRENGTH
+              View Account Details
             </button>
           </div>
         </div>

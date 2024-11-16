@@ -79,11 +79,31 @@ class AccountView(generics.ListAPIView):
         else:
             return Response({"detail": "No accounts found for the user."}, status=status.HTTP_400_BAD_REQUEST)
 
+class FetchAccountView(generics.ListAPIView):
+    def get(self, request, pk):
+        # user_data = self.request.data
+        user_id = pk 
 
-class FetchAccountView(generics.RetrieveAPIView):
-    def get_queryset(self):
-        user = self.request.user
-        if user is not None:
-            return Response(Account.objects.filter(user=user), status=status.HTTP_200_OK)
+        if user_id is not None:
+        
+            accounts = Account.objects.filter(user_id=user_id).prefetch_related('passwords')
+
+            if accounts.exists():
+                all_account_data = []
+
+                for account in accounts:
+                    
+                    account_data = AccountSerializer(account).data
+
+                    passwords = account.passwords.all().values('id', 'password')
+                    account_data['passwords'] = list(passwords)
+
+                    # Append to the list of all accounts
+                    all_account_data.append(account_data)
+
+                # Return the data for all accounts
+                return Response(all_account_data, status=status.HTTP_200_OK)
+            else:
+                return Response({"detail": "No accounts found for the given user ID."}, status=status.HTTP_404_NOT_FOUND)
         else:
-            return Response({"detail": "No accounts found for the user."}, status=status.HTTP_200_OK)
+            return Response({"detail": "User ID not provided."}, status=status.HTTP_400_BAD_REQUEST)
