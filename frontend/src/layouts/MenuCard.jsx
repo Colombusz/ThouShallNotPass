@@ -1,11 +1,13 @@
 import React, { useState } from "react";
-import { toast } from "react-hot-toast";
 import { useNavigate } from "react-router-dom"; // Import useNavigate hook
+import { FaTrash } from "react-icons/fa"; // Import trash icon
 import Login from "../components/Login";
+import Paraphrase from "../components/users/Paraphrase"; // Corrected import path
 
 const MenuCard = (props) => {
   const [showLoginPrompt, setShowLoginPrompt] = useState(false);
   const [showLoginModal, setShowLoginModal] = useState(false);
+  const [showParaphraseModal, setShowParaphraseModal] = useState(false); // State for Paraphrase modal
   const navigate = useNavigate(); // Initialize useNavigate hook
 
   const handleCheckPasswordStrength = () => {
@@ -13,15 +15,21 @@ const MenuCard = (props) => {
     if (!token) {
       setShowLoginPrompt(true);
     } else {
-      // Navigate to accountpage if user is logged in
-      navigate("/accountpage");
-      toast.success("Proceeding with password strength check...");
+      // Show Paraphrase modal if user is logged in
+      setShowParaphraseModal(true);
     }
   };
 
   const toggleLoginModal = () => {
     setShowLoginModal(!showLoginModal);
     setShowLoginPrompt(false);
+  };
+
+  const handleRemoveCard = () => {
+    // Logic to remove the card
+    if (props.onRemove) {
+      props.onRemove(props.id);
+    }
   };
 
   return (
@@ -43,12 +51,21 @@ const MenuCard = (props) => {
               View Account Details
             </button>
           </div>
+          <button
+            className="text-red-500 hover:text-red-700 transition-all"
+            onClick={handleRemoveCard}
+          >
+            <FaTrash />
+          </button>
         </div>
       </div>
-  
+
+      {/* Modal for Paraphrase */}
+      <Paraphrase show={showParaphraseModal} handleClose={() => setShowParaphraseModal(false)} />
+
       {/* Modal for Login Prompt */}
       {showLoginPrompt && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center" style={{ zIndex: 100 }}>
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
           <div className="bg-white p-8 rounded-lg">
             <h2 className="text-xl mb-4">You need to log in to check password strength.</h2>
             <button
@@ -60,10 +77,10 @@ const MenuCard = (props) => {
           </div>
         </div>
       )}
-  
+
       {/* Modal for Login */}
       {showLoginModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center" style={{ zIndex: 100 }}>
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
           <div className="bg-white p-8 rounded-lg">
             <button
               className="text-black font-bold text-xl mb-4"

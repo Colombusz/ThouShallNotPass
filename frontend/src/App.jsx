@@ -9,6 +9,8 @@ import AccountPage from "./components/Accountpage";
 import About from "./components/About";
 import Footer from "./layouts/Footer";
 import Profile from "./components/Profile";
+import Paraphrase from "./components/users/Paraphrase"; // Update this path to match the correct location
+import ViewAccDetails from "./components/users/ViewAccDetails";
 
 // Admin side
 import Sidebar from "./components/common/Sidebar";
@@ -90,6 +92,22 @@ const App = () => {
           element={
             <UserLayout>
               <Profile />
+            </UserLayout>
+          }
+        />
+        <Route
+          path="/paraphrase"
+          element={
+            <UserLayout>
+              <Paraphrase />
+            </UserLayout>
+          }
+        />
+        <Route
+          path="/view-acc-details"
+          element={
+            <UserLayout>
+              <ViewAccDetails />
             </UserLayout>
           }
         />

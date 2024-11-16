@@ -1,9 +1,9 @@
 import React, { useState } from "react";
 import avatar from "../assets/img/profile.png";
 import toast, { Toaster } from "react-hot-toast";
-import { FaFacebook, FaInstagram, FaEye, FaEyeSlash } from "react-icons/fa";
+import { FaEye, FaEyeSlash } from "react-icons/fa";
 
-const Profile = () => {
+export const ProfileContainer = () => {
   const [file, setFile] = useState(); // State for uploaded image
   const [firstName, setFirstName] = useState("Wrath"); // Example existing data
   const [lastName, setLastName] = useState("Boh");
@@ -16,11 +16,6 @@ const Profile = () => {
   const [passwordSuggestion, setPasswordSuggestion] = useState("");
   const [isTyping, setIsTyping] = useState(false);
 
-  const [accounts, setAccounts] = useState([
-    { id: 1, platform: "Facebook", icon: <FaFacebook />, password: "password123", showPassword: false, strength: "Weak" },
-    { id: 2, platform: "Instagram", icon: <FaInstagram />, password: "strongpassword456", showPassword: false, strength: "Strong" },
-  ]);
-
   // Dummy form submit handler
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -32,12 +27,6 @@ const Profile = () => {
     if (uploadedFile) {
       setFile(URL.createObjectURL(uploadedFile)); 
     }
-  };
-
-  const toggleShowPassword = (id) => {
-    setAccounts(accounts.map(account => 
-      account.id === id ? { ...account, showPassword: !account.showPassword } : account
-    ));
   };
 
   const handlePasswordChange = (e) => {
@@ -58,28 +47,31 @@ const Profile = () => {
   };
 
   return (
-    <div className="flex items-center justify-center min-h-screen bg-gradient-to-r from-[#0e397e] to-[#75a6a3] pt-24 pb-20">
+    <div className="p-4 w-full space-x-2">
       <Toaster position="top-center" reverseOrder={false} />
-      <div className="flex bg-white shadow-md rounded-lg p-4 w-11/12 lg:w-8/12 space-x-2">
+      <div className="flex bg-white shadow-md rounded-lg p-4 w-full space-x-2">
         {/* Profile Section */}
-        <div className="flex flex-col w-full">
+        <div className="flex flex-col w-1/2 items-center">
           <h4 className="text-4xl font-bold text-center mt-4">Profile</h4>
           <span className="py-2 text-lg text-center text-gray-500">
             You can update your details.
           </span>
 
-          <form className="py-1" onSubmit={handleSubmit}>
-            <div className="flex justify-center py-4">
-              <label htmlFor="profile">
-                <img
-                  src={file || avatar}
-                  className="w-32 h-32 rounded-full border-2 border-gray-300"
-                  alt="avatar"
-                />
-              </label>
-              <input onChange={onUpload} type="file" id="profile" name="profile" className="hidden" />
-            </div>
+          <div className="flex justify-center py-4">
+            <label htmlFor="profile">
+              <img
+                src={file || avatar}
+                className="w-32 h-32 rounded-full border-2 border-gray-300"
+                alt="avatar"
+              />
+            </label>
+            <input onChange={onUpload} type="file" id="profile" name="profile" className="hidden" />
+          </div>
+        </div>
 
+        {/* Input Fields Section */}
+        <div className="flex flex-col w-1/2">
+          <form className="py-1" onSubmit={handleSubmit}>
             <div className="flex flex-col items-center gap-4">
               <div className="flex w-full gap-4">
                 <input
@@ -160,37 +152,14 @@ const Profile = () => {
             </div>
           </form>
         </div>
-
-        {/* List of Accounts Section */}
-        <div className="flex flex-col w-full">
-          <h4 className="text-3xl font-bold text-center">List of Accounts</h4>
-          <div className="mt-4 overflow-auto">
-            {/* Table Header */}
-            <div className="grid grid-cols-4 gap-4 text-center font-semibold border-b mb-2">
-              <span>Platform</span>
-              <span>Password</span>
-              <span>Show/Hide</span>
-              <span>Remarks</span>
-            </div>
-
-            {/* Account Items */}
-            {accounts.map(account => (
-              <div key={account.id} className="grid grid-cols-4 gap-4 items-center border-b py-2">
-                <div className="flex items-center justify-center">
-                  {account.icon}
-                  <span className="ml-2">{account.platform}</span>
-                </div>
-                <span className="text-center">{account.showPassword ? account.password : "••••••••"}</span>
-                <button className="flex justify-center" onClick={() => toggleShowPassword(account.id)}>
-                  {account.showPassword ? <FaEyeSlash /> : <FaEye />}
-                </button>
-                <span className="text-center">{account.strength}</span>
-              </div>
-            ))}
-          </div>
-        </div>
       </div>
     </div>
+  );
+};
+
+const Profile = () => {
+  return (
+    <ProfileContainer />
   );
 };
 

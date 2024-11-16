@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import img1 from "../assets/img/apps/google.png";
 import img2 from "../assets/img/apps/fb.png";
 import img3 from "../assets/img/apps/ig.png";
@@ -8,7 +8,8 @@ import img6 from "../assets/img/apps/other apps.png";
 import MenuCard from "../layouts/MenuCard";
 import axios from "axios";
 import toast from "react-hot-toast";
-import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom"; // Import useNavigate
+import AccountPage from "../components/AccountPage"; // Corrected import path
 
 const getCurrentUser = () => {
   const token = sessionStorage.getItem("accessToken");
@@ -27,7 +28,8 @@ const getCurrentUser = () => {
 const Menu = () => {
   const [accounts, setAccounts] = useState([]);  
   const id = getCurrentUser();  
-
+  const navigate = useNavigate(); // Initialize useNavigate
+  const [showAccountModal, setShowAccountModal] = useState(false); // State for account modal
 
   useEffect(() => {
     const fetchAccounts = async (id) => {
@@ -45,11 +47,24 @@ const Menu = () => {
 
     fetchAccounts(id);  
   }, [id]); 
+
+  const toggleAccountModal = () => {
+    setShowAccountModal(!showAccountModal);
+  };
+
   return (
-    <div className="min-h-screen flex flex-col justify-center lg:flex-row lg:justify-between items-center lg:px-32 px-5 gap-10 bg-gradient-to-r from-[#0e397e] to-[#75a6a3]">
-      {/* <h1 className=" font-semibold text-center text-4xl mt-24 mb-8">
-        Check Account Password On this Apps
-      </h1> */}
+    <div className="min-h-screen flex flex-col lg:flex-row lg:justify-between items-center lg:px-32 px-5 gap-10 bg-gradient-to-r from-[#0e397e] to-[#75a6a3]">
+      <div className="w-full flex justify-end p-5 absolute top-16 right-16">
+        <div className="text-right">
+          <p className="text-white mb-2">Don't have an account yet?</p>
+          <button 
+            onClick={toggleAccountModal} 
+            className="bg-blue-500 text-white font-bold py-2 px-4 rounded"
+          >
+            Create Account
+          </button>
+        </div>
+      </div>
 
       <div className="flex flex-wrap pb-8 gap-8 justify-center mt-24"> {/* Added mt-10 for margin-top */}
         {accounts.length > 0 ? (
@@ -62,6 +77,24 @@ const Menu = () => {
             <p>No accounts found or loading...</p>
           )}
       </div>
+
+      {/* Modal for Account Page */}
+      {showAccountModal && (
+        <div
+          className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center"
+          style={{ zIndex: 100 }}
+        >
+          <div className="bg-white p-8 rounded-lg w-11/12 lg:w-8/12">
+            <button
+              className="text-black font-bold text-xl mb-4"
+              onClick={toggleAccountModal}
+            >
+              X
+            </button>
+            <AccountPage isVisible={showAccountModal} />
+          </div>
+        </div>
+      )}
     </div>
   );
 };

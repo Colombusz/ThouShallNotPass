@@ -1,17 +1,19 @@
 import React, { useState, useEffect } from "react";
 import { Link as RouterLink, useNavigate } from "react-router-dom";
-import { AiOutlineMenuUnfold, AiOutlineClose } from "react-icons/ai";
+import { AiOutlineMenuUnfold, AiOutlineClose, AiOutlineSearch } from "react-icons/ai";
 import { toast } from "react-hot-toast";
 import logo from "../assets/img/logo.png"; // Ensure this path is correct
 import profilePic from "../assets/img/profile.png"; // Adjust this path to your actual profile image
 import Button from "./Button";
 import Login from "../components/Login";
+import { ProfileContainer } from "../components/Profile"; // Import the ProfileContainer component
 
 const Navbar = () => {
   const [menu, setMenu] = useState(false);
   const [showLoginModal, setShowLoginModal] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [dropdownOpen, setDropdownOpen] = useState(false);
+  const [showProfileModal, setShowProfileModal] = useState(false); // State for profile modal
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -47,9 +49,14 @@ const Navbar = () => {
     setShowLoginModal(false);
   };
 
+  const toggleProfileModal = () => {
+    setShowProfileModal(!showProfileModal);
+    setDropdownOpen(false);
+  };
+
   return (
     <div className="fixed w-full z-10">
-      <div className="flex flex-row justify-between p-5 lg:px-32 px-5 bg-gradient-to-r from-[#0e397e] to-[#75a6a3]">
+      <div className="flex flex-row justify-between p-5 lg:px-32 px-5 bg-gradient-to-r from-[#0e397e] to-[#75a6a3] mx-4">
         <div className="flex flex-row items-center cursor-pointer gap-2">
           <img src={logo} alt="Logo" className="h-12 w-auto" />
           <h1 className="text-3xl font-semibold text-white">Lockify</h1>
@@ -64,7 +71,6 @@ const Navbar = () => {
             Home
           </RouterLink>
 
-          
           {isLoggedIn ? (
             <RouterLink
               to="/menu"
@@ -75,8 +81,6 @@ const Navbar = () => {
             </RouterLink>
           ) : null}
 
-
-          
           <RouterLink
             to="/about"
             className="group relative inline-block cursor-pointer hover:text-[#a7f7ff]"
@@ -87,6 +91,15 @@ const Navbar = () => {
         </nav>
 
         <div className="hidden lg:flex items-center gap-4">
+          <div className="relative">
+            <input
+              type="text"
+              placeholder="Search..."
+              className="border rounded-md p-2 pl-8"
+            />
+            <AiOutlineSearch className="absolute left-3 top-3 text-gray-500" />
+          </div>
+
           {isLoggedIn ? (
             <>
               {/* Profile Picture with Dropdown */}
@@ -94,18 +107,17 @@ const Navbar = () => {
                 <img
                   src={profilePic}
                   alt="Profile"
-                  className="h-11 w-11 rounded-full cursor-pointer"
+                  className="h-12 w-12 rounded-full cursor-pointer"
                   onClick={toggleDropdown}
                 />
                 {dropdownOpen && (
                   <div className="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg z-20">
-                    <RouterLink
-                      to="/profile"
-                      className="block px-4 py-2 text-black hover:bg-gray-200"
-                      onClick={() => setDropdownOpen(false)}
+                    <button
+                      onClick={toggleProfileModal}
+                      className="block w-full text-left px-4 py-2 text-black hover:bg-gray-200"
                     >
                       View Profile
-                    </RouterLink>
+                    </button>
                     <button
                       onClick={handleLogout}
                       className="block w-full text-left px-4 py-2 text-black hover:bg-gray-200"
@@ -188,6 +200,24 @@ const Navbar = () => {
               X
             </button>
             <Login onLoginSuccess={handleLoginSuccess} />
+          </div>
+        </div>
+      )}
+
+      {/* Modal for Profile */}
+      {showProfileModal && (
+        <div
+          className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center"
+          style={{ zIndex: 100 }}
+        >
+          <div className="bg-white p-8 rounded-lg w-11/12 lg:w-8/12">
+            <button
+              className="text-black font-bold text-xl mb-4"
+              onClick={toggleProfileModal}
+            >
+              X
+            </button>
+            <ProfileContainer />
           </div>
         </div>
       )}
