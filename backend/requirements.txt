@@ -12,3 +12,4 @@ django-cors-headers
 bcrypt
 requests
 regex
+Pillow

@@ -44,6 +44,12 @@ class User(models.Model):
     fname = models.CharField(max_length=100)
     password = models.CharField(max_length=255)  # Store hashed passwords
     phone = models.CharField(max_length=15)
+    image = models.ImageField(
+        upload_to='profile/', 
+        null=True, 
+        blank=True, 
+        default='profile/default.jpg'  # Default image path
+    )
     role = models.ForeignKey(Role, on_delete=models.CASCADE, null=True, related_name='users')
 
     def save(self, *args, **kwargs):
@@ -72,9 +78,12 @@ class Account(models.Model):
     description = models.CharField(max_length=100)
     username = models.CharField(max_length=100)
     url = models.CharField(max_length=255, default='example.com')
-    
-    
-    
+    image = models.ImageField(
+        upload_to='profile/', 
+        null=True, 
+        blank=True, 
+        default='profile/default.jpg'  # Default image path
+    )
     def __str__(self):
         return self
 
