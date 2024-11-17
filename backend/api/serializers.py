@@ -24,7 +24,7 @@ class PassphraseSerializer(serializers.ModelSerializer):
 
     def get_original_passphrase(self, obj):
         return getattr(obj, '_original_passphrase', None)
-# serializers.py
+
 
 class UserSerializer(serializers.ModelSerializer):
     role = serializers.CharField(required=False)
@@ -56,6 +56,21 @@ class UserSerializer(serializers.ModelSerializer):
         
         instance.save()
         return instance
+
+
+class RegisterSerializer(serializers.ModelSerializer):
+    role = serializers.CharField(required=False)
+    passphrase = PassphraseSerializer(source='user_passphrase', read_only=True)  # Updated to use 'user_passphrase'
+    password = serializers.CharField(write_only=True)   # Added password field for password hashing
+    class Meta:
+        model = User
+        fields = ['id', 'email', 'password', 'fname', 'phone', 'role', 'passphrase']
+
+    def create(self, validated_data):
+        user = super().create(validated_data)
+        if hasattr(user, '_original_passphrase'):
+            user.passphrase = user._original_passphrase
+        return user
     
 class LoginSerializer(serializers.Serializer):
     email = serializers.EmailField()

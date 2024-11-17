@@ -6,7 +6,7 @@ import './App.css';
 import Navbar from "./layouts/Navbar";
 import Home from "./components/Home";
 import Menu from "./components/Accounts";
-import AccountPage from "./components/Accountpage";
+import AccountPage from "./components/AccountPage";
 import About from "./components/About";
 import Footer from "./layouts/Footer";
 import Profile from "./components/Profile";
@@ -37,10 +37,10 @@ const AdminLayout = ({ children }) => (
     {/* Sidebar */}
     <Sidebar />
     {/* Main Content */}
-    <div className="flex-grow">
+    <div className="flex-grow overflow-auto">
       {/* Background */}
       <div className="fixed inset-0 z-0">
-        <div className="absolute inset-0 bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 opacity-80" />
+        <div className="absolute inset-0 bg-gradient-to-br from-[#ECF9FF] via-[#ECF9FF] to-[#ECF9FF] opacity-80" />
         <div className="absolute inset-0 backdrop-blur-sm" />
       </div>
       {children}

@@ -10,3 +10,6 @@
   padding: 20px;
   background-color: #f0f0f0; /* Adjust the background color if needed */
 }
+.overflow-auto {
+  overflow: auto;
+}

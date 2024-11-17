@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import axios from "axios";
 import { motion } from "framer-motion";
-import { Search, Edit, Trash } from "lucide-react";
+import { Search, Edit, Trash, User } from "lucide-react";
 import toast from "react-hot-toast";
 import Swal from "sweetalert2";
 
@@ -156,9 +156,9 @@ const UsersTable = () => {
                                 <td className='px-6 py-4 whitespace-nowrap'>
                                     <div className='flex items-center'>
                                         <div className='flex-shrink-0 h-10 w-10'>
-                                            <div className='h-10 w-10 rounded-full bg-gradient-to-r from-purple-400 to-blue-500 flex items-center justify-center text-white font-semibold'>
-                                                {user.fname.charAt(0)}
-                                            </div>
+                                        <div className='h-10 w-10 rounded-full bg-gradient-to-r from-purple-400 to-blue-500 flex items-center justify-center text-white font-semibold'>
+                                            <User size={20} />
+                                        </div>
                                         </div>
                                         <div className='ml-4'>
                                             <div className='text-sm font-medium text-black'>{user.fname}</div>
