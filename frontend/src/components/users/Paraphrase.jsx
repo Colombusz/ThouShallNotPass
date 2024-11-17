@@ -36,7 +36,7 @@ const Paraphrase = ({ show, handleClose }) => {
                 type="text"
                 value={value}
                 onChange={(e) => handleChange(index, e)}
-                maxLength="1"
+                maxLength="20"
                 className="w-1/5 p-2 border border-gray-300 rounded text-center"
               />
             ))}

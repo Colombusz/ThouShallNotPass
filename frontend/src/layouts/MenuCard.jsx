@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import axios from "axios"; // Import axios for API calls
 import { useNavigate } from "react-router-dom"; // Import useNavigate hook
 import { FaTrash } from "react-icons/fa"; // Import trash icon
 import Login from "../components/Login";
@@ -25,19 +26,35 @@ const MenuCard = (props) => {
     setShowLoginPrompt(false);
   };
 
-  const handleRemoveCard = () => {
-    // Logic to remove the card
-    if (props.onRemove) {
-      props.onRemove(props.id);
+  const handleRemoveCard = async (id) => {
+    try {
+      // Call the API to delete the account
+      const response = await axios.delete(
+        `http://127.0.0.1:8000/api/users/DeleteAccount/${id}`
+      );
+      console.log("Delete response:", response.data);
+
+      // Notify parent component (if needed)
+      if (props.onRemove) {
+        props.onRemove(props.id);
+      }
+      window.location.reload();
+    } catch (error) {
+      console.error("Error deleting account:", error);
     }
   };
 
   return (
-    <div className="w-full lg:w-1/4 bg-white p-3 rounded-lg pt-5 mt-5"> {/* Added mt-5 for margin-top */}
+    <div className="w-72 h-96 bg-white p-3 rounded-lg pt-5 mt-5 flex flex-col justify-between">
+      {/* Card Content */}
       <div>
-        <img className="rounded-xl" src={props.img} alt="img1" />
+        <img
+          className="w-full h-40 rounded-xl object-cover"
+          src={props.img}
+          alt="img1"
+        />
       </div>
-      <div className="p-2 mt-5">
+      <div className="p-2 mt-5 flex-grow">
         <div className="flex flex-row justify-between">
           <h3 className="font-semibold text-xl">{props.title}</h3>
           <h3 className="font-semibold text-xl">{props.value}</h3>
@@ -53,7 +70,7 @@ const MenuCard = (props) => {
           </div>
           <button
             className="text-red-500 hover:text-red-700 transition-all"
-            onClick={handleRemoveCard}
+            onClick={() => handleRemoveCard(props.id)} // Directly call handleRemoveCard
           >
             <FaTrash />
           </button>
@@ -61,13 +78,18 @@ const MenuCard = (props) => {
       </div>
 
       {/* Modal for Paraphrase */}
-      <Paraphrase show={showParaphraseModal} handleClose={() => setShowParaphraseModal(false)} />
+      <Paraphrase
+        show={showParaphraseModal}
+        handleClose={() => setShowParaphraseModal(false)}
+      />
 
       {/* Modal for Login Prompt */}
       {showLoginPrompt && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
           <div className="bg-white p-8 rounded-lg">
-            <h2 className="text-xl mb-4">You need to log in to check password strength.</h2>
+            <h2 className="text-xl mb-4">
+              You need to log in to check password strength.
+            </h2>
             <button
               className="px-6 py-2 bg-blue-500 text-white rounded-lg"
               onClick={toggleLoginModal}

@@ -31,25 +31,31 @@ const Menu = () => {
   const navigate = useNavigate(); // Initialize useNavigate
   const [showAccountModal, setShowAccountModal] = useState(false); // State for account modal
 
-  useEffect(() => {
-    const fetchAccounts = async (id) => {
-      if (id) {
-        try {
-          const response = await axios.get(`http://127.0.0.1:8000/api/users/FetchAccount/${id}`);
-          console.log("Fetched accounts:", response.data);
-          setAccounts(response.data);  
-        } catch (error) {
-          console.error("Fetch error:", error.response ? error.response.data : error.message);
-          toast.error("Failed to fetch accounts. Please try again.");
-        }
+  const fetchAccounts = async (id) => {
+    if (id) {
+      try {
+        const response = await axios.get(`http://127.0.0.1:8000/api/users/FetchAccount/${id}`);
+        console.log("Fetched accounts:", response.data);
+        setAccounts(response.data);  
+      } catch (error) {
+        console.error("Fetch error:", error.response ? error.response.data : error.message);
+        toast.error("Failed to fetch accounts. Please try again.");
       }
-    };
+    }
+  };
 
+  useEffect(() => {
     fetchAccounts(id);  
   }, [id]); 
 
   const toggleAccountModal = () => {
     setShowAccountModal(!showAccountModal);
+  };
+
+  const handleAccountCreated = () => {
+    fetchAccounts(id);
+    setShowAccountModal(false);
+    window.location.href = '/menu'; // Refresh the page after closing the modal
   };
 
   return (
@@ -70,7 +76,8 @@ const Menu = () => {
         {accounts.length > 0 ? (
             // Map over the fetched accounts and render MenuCard for each account
             accounts.map((account, index) => (
-              <MenuCard key={index} img={account.image || img6} title={account.name} />
+              <MenuCard key={index} img={'http://127.0.0.1:8000' + account.image || img6} title={account.name} id = {account.id}/>
+              
             ))
           ) : (
             // If no accounts are fetched, display a message or loading indicator
@@ -91,7 +98,7 @@ const Menu = () => {
             >
               X
             </button>
-            <AccountPage isVisible={showAccountModal} onClose={toggleAccountModal} />
+            <AccountPage isVisible={showAccountModal} onClose={toggleAccountModal} onAccountCreated={handleAccountCreated} />
           </div>
         </div>
       )}

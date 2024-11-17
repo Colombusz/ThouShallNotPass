@@ -6,6 +6,8 @@ from django.contrib.auth.hashers import check_password
 import bcrypt
 import math
 from .analysis import calculate_entropy, remarks, estimate_cracking_time
+import os
+from django.conf import settings
 
 
 class RoleSerializer(serializers.ModelSerializer):
@@ -143,49 +145,54 @@ class CreateAccountSerializer(serializers.ModelSerializer):
     class Meta:
         model = Account
         fields = ['name', 'description', 'username', 'url', 'image']
-    
+
     def validate(self, data):
+
         return data
-    
+
     def createAcc(self, data, id):
-        
+       
         name = data['name']
         description = data['description']
         username = data['username']
         Acc_url = data['url']
-        # print(data)
-       
-        if not id:
-           return False
-        psw = PasswordHasher()
         
+       
+        image_file = data['image']
+        
+    
+        if not id:
+            return {"error": "User ID is required to create an account."}
+        
+     
+        psw = PasswordHasher()
         lyze = AnalysisSerializer()
+
+        # Create the account instance
         account = Account(
             name=name,
             description=description,
             username=username,
-            user_id = id, # fixed
+            user_id=id,  # Fixed user ID assignment
             url=Acc_url,
-            image=data['image'],
-            # user_id=self.context['request'].user,
+            image=image_file,
         )
-         # Check if URL exists
+
+        # Check if URL already exists and handle conflict
         existing_account = Account.objects.filter(url=Acc_url).first()
-        if existing_account:
-        # URL exists, check if username matches
-            if existing_account.username == username:
-                return "An account with this URL and username already exists Please Change your username"
+        if existing_account and existing_account.username == username:
+            return "An account with this URL and username already exists. Please change your username."
+
+        # Save the account to the database
         account.save()
-        # return account
+        
+        # Hash the password and perform analysis
         acc_id = account.id
-        psw = psw.hash(data['password'], acc_id)
-        psw_id = psw.id
-        
-        lyze.analyze(psw_id, data['password'].get('password'))
-        # return psw
-        # return data['password']
-        
+        hashed_password = psw.hash(data['password'], acc_id)
+        lyze.analyze(hashed_password.id, data['password'].get('password'))
+
         return "Account created successfully."
+
 
 
 class DeleteAccountSerializer(serializers.ModelSerializer):
@@ -194,6 +201,11 @@ class DeleteAccountSerializer(serializers.ModelSerializer):
             account = Account.objects.get(id=pk)
             pwd = Password.objects.get(account_id=account.id)
             analysis = Analysis.objects.get(password_id=pwd.id)
+            
+            if account.image:  # Check if the image exists
+                image_path = account.image.path  # Get the full path to the image
+                if os.path.isfile(image_path):  # Check if the file exists
+                    os.remove(image_path)
             
             # Delete in reverse dependency order
             analysis.delete()

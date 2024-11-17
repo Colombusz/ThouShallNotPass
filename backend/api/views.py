@@ -71,25 +71,20 @@ class LoginView(APIView):
 # for creating existing accounts of the current user
 class AccountView(generics.ListAPIView):
     parser_classes = (MultiPartParser, FormParser)
-    
+
     def post(self, request, pk, format=None):
-        # return Response(data = request.data, status=status.HTTP_200_OK)
-        serializer = CreateAccountSerializer(data = request.data)
-        serializer2 = PasswordHasher(data = request.data)
+        serializer = CreateAccountSerializer(data=request.data)
+        serializer2 = PasswordHasher(data=request.data)
         user_id = pk
-        
-        print(request.data)
         if serializer.is_valid() and serializer2.is_valid():
-           
             data = serializer.validated_data
             password = serializer2.validated_data
             data['password'] = password
-            
+
             if not user_id:
                 return Response({"User doesn't exist"}, status=status.HTTP_400_BAD_REQUEST)
+            
             result = serializer.createAcc(data, pk)
-            
-            
             return Response(result, status=status.HTTP_200_OK)
         else:
             return Response({"detail": "No accounts found for the user."}, status=status.HTTP_400_BAD_REQUEST)
