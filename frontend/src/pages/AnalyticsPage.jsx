@@ -2,8 +2,6 @@ import Header from "../components/common/Header";
 import OverviewCards from "../components/analytics/OverviewCards";
 import PasswordCompositionChart from "../components/analytics/PasswordCompositionChart";
 import PasswordStrengthChart from "../components/analytics/PasswordStrengthChart";
-import UserRetention from "../components/analytics/UserRetention";
-import CustomerSegmentation from "../components/analytics/CustomerSegmentation";
 import AIPoweredInsights from "../components/analytics/AIPoweredInsights";
 
 const AnalyticsPage = () => {
@@ -16,8 +14,8 @@ const AnalyticsPage = () => {
 				<div className='grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8'>
 					<PasswordCompositionChart />
 					<PasswordStrengthChart />
-					<UserRetention />
-					<CustomerSegmentation />
+					
+			
 				</div>
 
 				<AIPoweredInsights />

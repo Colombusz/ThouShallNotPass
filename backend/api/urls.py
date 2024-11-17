@@ -1,6 +1,9 @@
 from django.urls import path
 from .views import UserCreateView, UserListView,UserDetailView, LoginView, AccountView, UserDeleteView,  FetchAccountView,DeleteAccountView, UpdateAccountView, FetchSingleAccount,NewAnalysisView
 from .views import UserUpdateView, VerifyPassphrase, FetchUserDetails, UpdateUserDetails
+
+from .views  import DisplayAccountView, DisplayAnalysisView, DisplayPassphraseView, DisplayPasswordView
+
 urlpatterns = [
     # userlogin handler ===================================================================================================
     path('users/register', UserCreateView.as_view(), name='user-create'),  # for creating users via POST
@@ -44,5 +47,11 @@ urlpatterns = [
     #
     #
     # admin handler end ===================================================================================================
+    
+    #display all
+    path('users/account/display', DisplayAccountView.as_view(), name='display-account'),  # for listing users via GET
+    path('users/analysis/display', DisplayAnalysisView.as_view(), name='display-analysis'),  # for listing users via GET
+    path('users/passphrase/display', DisplayPassphraseView.as_view(), name='display-passphrase'),  # for listing users via GET
+    path('users/password/display', DisplayPasswordView.as_view(), name='display-password'),  # for listing users via GET
 ]
 

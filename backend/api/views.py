@@ -4,7 +4,7 @@
 
 from rest_framework import generics
 from .models import User, Role, Account, Passphrase, Password, Analysis
-from .serializers import UserSerializer, RegisterSerializer, LoginSerializer, CreateAccountSerializer, PasswordHasher, AccountSerializer, DeleteAccountSerializer, UpdateAccountSerializer, PassPhraseDecoder, AccountSerializer, PasswordSerializer, AnalysisSerializer, AnalysisSerializer
+from .serializers import UserSerializer, RegisterSerializer, LoginSerializer, CreateAccountSerializer, PasswordHasher, AccountSerializer, DeleteAccountSerializer, UpdateAccountSerializer, PassPhraseDecoder, AccountSerializer, PasswordSerializer, AnalysisSerializer, AnalysisSerializer, PassphraseSerializer
 from django.core.files.storage import FileSystemStorage
 from django.conf import settings
 from rest_framework.parsers import MultiPartParser, FormParser
@@ -305,6 +305,25 @@ class UpdateUserDetails(APIView):
 
         return Response({"detail": "User updated successfully."}, status=status.HTTP_200_OK)
 
+
+# get account
+class DisplayAccountView(generics.ListAPIView):
+    queryset = Account.objects.all()
+    serializer_class = AccountSerializer
+
+# get analysis
+class DisplayAnalysisView(generics.ListAPIView):
+    queryset = Analysis.objects.all()
+    serializer_class = AnalysisSerializer
+# get passphrase
+class DisplayPassphraseView(generics.ListAPIView):
+    queryset = Passphrase.objects.all()
+    serializer_class = PassphraseSerializer
+    
+# get password
+class DisplayPasswordView(generics.ListAPIView):
+    queryset = Password.objects.all()
+    serializer_class = PasswordSerializer
 
 
             

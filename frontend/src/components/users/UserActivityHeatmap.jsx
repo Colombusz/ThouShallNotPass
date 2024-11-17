@@ -1,24 +1,41 @@
 import { useState, useEffect } from "react";
 import { Bar, BarChart, CartesianGrid, Legend, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 import { motion } from "framer-motion";
+import axios from "axios";
 
-const generateRandomData = () => {
-    const days = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
-    const timeSlots = ["0-4", "4-8", "8-12", "12-16", "16-20", "20-24"];
-    return days.map((day) => {
-        const data = { name: day };
-        timeSlots.forEach((slot) => {
-            data[slot] = Math.floor(Math.random() * 100) + 1;
-        });
-        return data;
-    });
-};
-
-const UserActivityHeatmap = () => {
+const AccountActivityOverview = () => {
     const [userActivityData, setUserActivityData] = useState([]);
 
     useEffect(() => {
-        setUserActivityData(generateRandomData());
+        const fetchData = async () => {
+            try {
+                const response = await axios.get("http://127.0.0.1:8000/api/users/account/display");
+                const accounts = response.data;
+
+                // Process the data to show user activity
+                const activityData = accounts.map((account) => ({
+                    name: account.name,
+                    value: 1, // Each account represents one activity
+                }));
+
+                // Aggregate the data by account name
+                const aggregatedData = activityData.reduce((acc, curr) => {
+                    const existing = acc.find(item => item.name === curr.name);
+                    if (existing) {
+                        existing.value += 1;
+                    } else {
+                        acc.push(curr);
+                    }
+                    return acc;
+                }, []);
+
+                setUserActivityData(aggregatedData);
+            } catch (error) {
+                console.error("Error fetching user activity data:", error);
+            }
+        };
+
+        fetchData();
     }, []);
 
     return (
@@ -28,7 +45,7 @@ const UserActivityHeatmap = () => {
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.4 }}
         >
-            <h2 className='text-xl font-semibold text-black mb-4'>User Activity Heatmap</h2>
+            <h2 className='text-xl font-semibold text-black mb-4'>Account Activity Overview</h2>
             <div style={{ width: "100%", height: 300 }}>
                 <ResponsiveContainer>
                     <BarChart data={userActivityData}>
@@ -43,12 +60,7 @@ const UserActivityHeatmap = () => {
                             itemStyle={{ color: "#E5E7EB" }}
                         />
                         <Legend />
-                        <Bar dataKey='0-4' stackId='a' fill='#6366F1' />
-                        <Bar dataKey='4-8' stackId='a' fill='#8B5CF6' />
-                        <Bar dataKey='8-12' stackId='a' fill='#EC4899' />
-                        <Bar dataKey='12-16' stackId='a' fill='#10B981' />
-                        <Bar dataKey='16-20' stackId='a' fill='#F59E0B' />
-                        <Bar dataKey='20-24' stackId='a' fill='#3B82F6' />
+                        <Bar dataKey='value' fill='#6366F1' />
                     </BarChart>
                 </ResponsiveContainer>
             </div>
@@ -56,4 +68,4 @@ const UserActivityHeatmap = () => {
     );
 };
 
-export default UserActivityHeatmap;
+export default AccountActivityOverview;

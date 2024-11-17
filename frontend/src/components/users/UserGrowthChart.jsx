@@ -9,13 +9,12 @@ const UserGrowthChart = () => {
     useEffect(() => {
         const fetchData = async () => {
             try {
-                const response = await axios.get("http://127.0.0.1:8000/api/users/list");
-                const users = response.data;
+                const response = await axios.get("http://127.0.0.1:8000/api/users/account/display");
+                const accounts = response.data;
 
-                // Generate random months for the data
-                const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
-                const data = users.map((user, index) => ({
-                    month: months[Math.floor(Math.random() * months.length)],
+                // Process the data to show account growth over time
+                const data = accounts.map((account, index) => ({
+                    id: account.id,
                     users: index + 1,
                 }));
 
@@ -35,13 +34,13 @@ const UserGrowthChart = () => {
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.3 }}
         >
-            <h2 className='text-xl font-semibold text-black mb-4'>User Growth</h2>
+            <h2 className='text-xl font-semibold text-black mb-4'>Account Growth</h2>
             <div className='h-[320px]'>
                 <ResponsiveContainer width='100%' height='100%'>
                     <LineChart data={userGrowthData}>
                         <CartesianGrid strokeDasharray='3 3' stroke='#374151' />
-                        <XAxis dataKey='month' stroke='#9CA3AF' />
-                        <YAxis stroke='#9CA3AF' />
+                        <XAxis dataKey='id' stroke='#9CA3AF' label={{ value: 'Account ID', position: 'insideBottomRight', offset: -5 }} />
+                        <YAxis stroke='#9CA3AF' label={{ value: 'Users', angle: -90, position: 'insideLeft' }} />
                         <Tooltip
                             contentStyle={{
                                 backgroundColor: "rgba(31, 41, 55, 0.8)",
