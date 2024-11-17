@@ -1,6 +1,6 @@
 from django.urls import path
-from .views import UserCreateView, UserListView, LoginView, AccountView, UserDeleteView, UserUpdateView, FetchAccountView,DeleteAccountView, UpdateAccountView
-
+from .views import UserCreateView, UserListView,UserDetailView, LoginView, AccountView, UserDeleteView,  FetchAccountView,DeleteAccountView, UpdateAccountView
+from .views import UserUpdateView
 urlpatterns = [
     # userlogin handler ===================================================================================================
     path('users/register', UserCreateView.as_view(), name='user-create'),  # for creating users via POST
@@ -30,8 +30,9 @@ urlpatterns = [
     # 
     ########## For managing users ===================================================================================================
     path('users/list', UserListView.as_view(), name='user-list'),  # for listing users via GET
-    path('users/update/<int:pk>', UserUpdateView.as_view(), name='user-update'),  # for updating a user via PUT/PATCH
     path('users/delete/<int:pk>', UserDeleteView.as_view(), name='user-delete'),  # for deleting a user via DELETE
+    path('users/edit/<int:pk>', UserDetailView.as_view(), name='user-detail'),  # New URL for retrieving specific user
+     path('users/update/<int:pk>', UserUpdateView.as_view(), name='user-update'),  # New URL for updating specific user
     ########## For managing users end ===================================================================================================
     #
     #

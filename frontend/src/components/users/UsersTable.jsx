@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import axios from "axios";
 import { motion } from "framer-motion";
-import { Search } from "lucide-react";
+import { Search, Edit, Trash } from "lucide-react";
 import toast from "react-hot-toast";
 import Swal from "sweetalert2";
 
@@ -9,6 +9,8 @@ const UsersTable = () => {
     const [searchTerm, setSearchTerm] = useState("");
     const [users, setUsers] = useState([]);
     const [filteredUsers, setFilteredUsers] = useState([]);
+    const [selectedUser, setSelectedUser] = useState(null); // State to hold the selected user for the modal
+    const [editUser, setEditUser] = useState({}); // State to hold the editable user details
 
     useEffect(() => {
         const fetchUsers = async () => {
@@ -27,7 +29,7 @@ const UsersTable = () => {
         const term = e.target.value.toLowerCase();
         setSearchTerm(term);
         const filtered = users.filter(
-            (user) => user.fname.toLowerCase().includes(term) || user.email.toLowerCase().includes(term)
+            (user) => user.fname.toLowerCase().includes(term) || user.email.toLowerCase().includes(term) || user.phone.toLowerCase().includes(term)
         );
         setFilteredUsers(filtered);
     };
@@ -53,6 +55,45 @@ const UsersTable = () => {
                 }
             }
         });
+    };
+
+    const handleEdit = async (id) => {
+        try {
+            const response = await axios.get(`http://127.0.0.1:8000/api/users/edit/${id}`);
+            setSelectedUser(response.data); // Set the selected user for the modal
+            setEditUser({
+                ...response.data,
+                role: response.data.role // Ensure role is set correctly
+            }); // Set the editable user details
+        } catch (error) {
+            console.error("Error fetching user details:", error);
+        }
+    };
+
+    const handleChange = (e) => {
+        const { name, value } = e.target;
+        setEditUser({ ...editUser, [name]: value });
+    };
+
+    const handleUpdate = async () => {
+        try {
+            const updatedUser = {
+                ...editUser,
+                role: editUser.role // Send role as a string
+            };
+            await axios.put(`http://127.0.0.1:8000/api/users/update/${editUser.id}`, updatedUser);
+            setUsers(users.map(user => (user.id === editUser.id ? updatedUser : user)));
+            setFilteredUsers(filteredUsers.map(user => (user.id === editUser.id ? updatedUser : user)));
+            toast.success("User updated successfully");
+            closeModal();
+        } catch (error) {
+            console.error("Error updating user:", error);
+        }
+    };
+
+    const closeModal = () => {
+        setSelectedUser(null); // Close the modal
+        setEditUser({}); // Reset the editable user details
     };
 
     return (
@@ -88,6 +129,9 @@ const UsersTable = () => {
                             </th>
                             <th className='px-6 py-3 text-left text-xs font-medium text-black uppercase tracking-wider'>
                                 Email
+                            </th>
+                            <th className='px-6 py-3 text-left text-xs font-medium text-black uppercase tracking-wider'>
+                                Phone
                             </th>
                             <th className='px-6 py-3 text-left text-xs font-medium text-black uppercase tracking-wider'>
                                 Role
@@ -126,20 +170,90 @@ const UsersTable = () => {
                                     <div className='text-sm text-black'>{user.email}</div>
                                 </td>
                                 <td className='px-6 py-4 whitespace-nowrap'>
+                                    <div className='text-sm text-black'>{user.phone}</div>
+                                </td>
+                                <td className='px-6 py-4 whitespace-nowrap'>
                                     <span className='px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-blue-800 text-blue-100'>
-                                        {user.role.role}
+                                        {user.role}
                                     </span>
                                 </td>
 
                                 <td className='px-6 py-4 whitespace-nowrap text-sm text-black'>
-                                    <button className='text-indigo-400 hover:text-indigo-300 mr-2'>Edit</button>
-                                    <button className='text-red-400 hover:text-red-300' onClick={() => handleDelete(user.id)}>Delete</button>
+                                    <button className='text-indigo-400 hover:text-indigo-300 mr-2' onClick={() => handleEdit(user.id)}>
+                                        <Edit size={18} />
+                                    </button>
+                                    <button className='text-red-400 hover:text-red-300' onClick={() => handleDelete(user.id)}>
+                                        <Trash size={18} />
+                                    </button>
                                 </td>
                             </motion.tr>
                         ))}
                     </tbody>
                 </table>
             </div>
+
+            {/* Render the UserModal component */}
+            {selectedUser && (
+                <div className="fixed inset-0 bg-gray-600 bg-opacity-50 flex items-center justify-center z-50">
+                    <div className="bg-white p-6 rounded-lg shadow-lg w-96 relative z-50">
+                        <h2 className="text-xl font-semibold mb-4">Edit User</h2>
+                        <div className="mb-4">
+                            <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="fname">
+                                Name
+                            </label>
+                            <input
+                                type="text"
+                                name="fname"
+                                value={editUser.fname || ''}
+                                onChange={handleChange}
+                                className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                            />
+                        </div>
+                        <div className="mb-4">
+                            <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="email">
+                                Email
+                            </label>
+                            <input
+                                type="email"
+                                name="email"
+                                value={editUser.email || ''}
+                                onChange={handleChange}
+                                className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                            />
+                        </div>
+                        <div className="mb-4">
+                            <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="phone">
+                                Phone
+                            </label>
+                            <input
+                                type="text"
+                                name="phone"
+                                value={editUser.phone || ''}
+                                onChange={handleChange}
+                                className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                            />
+                        </div>
+                        <div className="mb-4">
+                            <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="role">
+                                Role
+                            </label>
+                            <select
+                                name="role"
+                                value={editUser.role || ''}
+                                onChange={handleChange}
+                                className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                            >
+                                <option value="user">User</option>
+                                <option value="admin">Admin</option>
+                            </select>
+                        </div>
+                        <div className="flex justify-end">
+                            <button className="bg-blue-500 text-white px-4 py-2 rounded mr-2" onClick={handleUpdate}>Update</button>
+                            <button className="bg-gray-500 text-white px-4 py-2 rounded" onClick={closeModal}>Cancel</button>
+                        </div>
+                    </div>
+                </div>
+            )}
         </motion.div>
     );
 };
