@@ -8,7 +8,7 @@ import StatCard from "../components/common/StatCard";
 import UsersTable from "../components/users/UsersTable";
 import UserGrowthChart from "../components/users/UserGrowthChart";
 import UserActivityHeatmap from "../components/users/UserActivityHeatmap";
-// import UserDemographicsChart from "../components/users/UserDemographicsChart";
+
 
 const UsersPage = () => {
     const [userStats, setUserStats] = useState({
@@ -71,7 +71,7 @@ const UsersPage = () => {
                 <div className='grid grid-cols-1 lg:grid-cols-2 gap-6 mt-8'>
                     <UserGrowthChart />
                     <UserActivityHeatmap />
-                    {/* <UserDemographicsChart /> */}
+              
                 </div>
             </main>
         </div>
