@@ -1,11 +1,13 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios"; // Make sure axios is installed and imported
+import { toast } from "react-hot-toast";
 
 const Paraphrase = ({ show, handleClose, accountId }) => {
   const [passphrase, setPassphrase] = useState(["", "", "", ""]);
   const [error, setError] = useState("");
   const navigate = useNavigate();
+  
 
   const handleChange = (index, event) => {
     const newPassphrase = [...passphrase];
@@ -43,15 +45,18 @@ const Paraphrase = ({ show, handleClose, accountId }) => {
 
       if (response.data.success) {
         console.log("Passphrase verified successfully:", response.data);
+        toast.success("Passphrase verified successfully.");
         handleClose(); // Close the modal after successful verification
         // Use accountId dynamically in navigate
         navigate(`/view-acc-details/${accountId}`);
       } else {
-        setError("Invalid passphrase. Please try again.");
+        toast.error("Invalid passphrase. Please try again.");
+
       }
     } catch (error) {
       console.error("Error verifying passphrase:", error);
-      setError("An error occurred. Please try again later.");
+      toast.error("An error occurred. Please try again later.");
+
     }
   };
 

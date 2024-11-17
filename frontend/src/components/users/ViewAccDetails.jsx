@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { FaEye, FaEyeSlash } from "react-icons/fa";
 import { useParams } from "react-router-dom";
 import axios from "axios";
+import { toast } from "react-hot-toast";
 
 const ViewAccDetails = () => {
   const { id } = useParams(); // Extract the account ID from the URL
@@ -54,10 +55,10 @@ const ViewAccDetails = () => {
         updatedAccount
       );
       console.log("Account updated successfully:", response.data);
-      alert(response.data.message);
+      toast.success(response.data.message);
     } catch (error) {
       console.error("Error updating account:", error);
-      alert("Failed to update the account.");
+      toast.error("Failed to update the account.");
     }
   };
 
@@ -73,14 +74,14 @@ const ViewAccDetails = () => {
         pass
       );
       console.log("Account updated successfully:", response.data);
-      alert(response.data.detail);
+      toast.success(response.data.detail);
       setData((prevData) => ({
         ...prevData,
         analysis: response.data.analysis, // Update the analysis part of the state
       }));
     } catch (error) {
       console.error("Error updating account:", error);
-      alert("Failed to update the account.");
+      toast.error("Failed to update the account.");
     }
   };
 

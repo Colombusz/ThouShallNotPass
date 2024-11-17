@@ -2,6 +2,7 @@ import { useState } from "react";
 import { FaEye, FaEyeSlash } from "react-icons/fa";
 import otherAppsLogo from "../assets/img/apps/other apps.png"; // Adjust the path as necessary
 import axios from "axios";
+import { toast } from "react-hot-toast";
 
 const AccountPage = ({ isVisible, onClose }) => {
   const [showPassword, setShowPassword] = useState(false);
@@ -80,6 +81,7 @@ const AccountPage = ({ isVisible, onClose }) => {
       console.log("Account created successfully:", response.data);
       onClose(); // Close the modal after successful account creation
       window.location.href = '/menu';
+      toast.success("Account created successfully!");
     } catch (error) {
       console.error("There was a problem with the fetch operation:", error);
     }
