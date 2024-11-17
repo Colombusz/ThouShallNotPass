@@ -142,7 +142,7 @@ class AnalysisSerializer(serializers.ModelSerializer):
 class CreateAccountSerializer(serializers.ModelSerializer):
     class Meta:
         model = Account
-        fields = ['name', 'description', 'username', 'url']
+        fields = ['name', 'description', 'username', 'url', 'image']
     
     def validate(self, data):
         return data

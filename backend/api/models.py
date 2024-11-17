@@ -79,10 +79,10 @@ class Account(models.Model):
     username = models.CharField(max_length=100)
     url = models.CharField(max_length=255, default='example.com')
     image = models.ImageField(
-        upload_to='profile/', 
+        upload_to='account/', 
         null=True, 
         blank=True, 
-        default='profile/default.jpg'  # Default image path
+        default='account/default.jpg'  # Default image path
     )
     def __str__(self):
         return self

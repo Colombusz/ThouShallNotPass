@@ -158,5 +158,5 @@ CORSE_ORIGIN_ALLOW_ALL = True
 CORSE_ALLOWS_CREDENTIALS = True
 
 
-MEDIA_URL = '/media/'
+MEDIA_URL = '../media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
