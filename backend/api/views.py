@@ -4,7 +4,7 @@
 
 from rest_framework import generics
 from .models import User, Role, Account, Passphrase, Password, Analysis
-from .serializers import UserSerializer, LoginSerializer, CreateAccountSerializer, PasswordHasher, AccountSerializer, DeleteAccountSerializer, UpdateAccountSerializer
+from .serializers import UserSerializer, RegisterSerializer, LoginSerializer, CreateAccountSerializer, PasswordHasher, AccountSerializer, DeleteAccountSerializer, UpdateAccountSerializer
 from django.core.files.storage import FileSystemStorage
 from django.conf import settings
 from rest_framework.parsers import MultiPartParser, FormParser
@@ -17,7 +17,7 @@ from rest_framework import status
 # register/create user
 class UserCreateView(generics.CreateAPIView):
     queryset = User.objects.all()
-    serializer_class = UserSerializer
+    serializer_class = RegisterSerializer
 
     def perform_create(self, serializer):
         # Assign 'user' role by default
