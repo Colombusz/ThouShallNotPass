@@ -24,15 +24,15 @@ class PassphraseSerializer(serializers.ModelSerializer):
 
     def get_original_passphrase(self, obj):
         return getattr(obj, '_original_passphrase', None)
+# serializers.py
 
 class UserSerializer(serializers.ModelSerializer):
-    role = RoleSerializer(read_only=True)
+    role = serializers.CharField(required=False)
     passphrase = PassphraseSerializer(source='user_passphrase', read_only=True)  # Updated to use 'user_passphrase'
-    password = serializers.CharField(write_only=True)
-
+    
     class Meta:
         model = User
-        fields = ['email', 'fname', 'password', 'phone', 'role', 'passphrase', 'image']
+        fields = ['id', 'email', 'fname', 'phone', 'role', 'passphrase']
 
     def create(self, validated_data):
         user = super().create(validated_data)
@@ -40,6 +40,23 @@ class UserSerializer(serializers.ModelSerializer):
             user.passphrase = user._original_passphrase
         return user
 
+    def update(self, instance, validated_data):
+        instance.email = validated_data.get('email', instance.email)
+        instance.fname = validated_data.get('fname', instance.fname)
+        instance.phone = validated_data.get('phone', instance.phone)
+        
+        # Update role if provided
+        role_data = validated_data.get('role')
+        if role_data:
+            try:
+                role = Role.objects.get(role=role_data)
+                instance.role = role
+            except Role.DoesNotExist:
+                raise serializers.ValidationError(f"Role '{role_data}' does not exist.")
+        
+        instance.save()
+        return instance
+    
 class LoginSerializer(serializers.Serializer):
     email = serializers.EmailField()
     password = serializers.CharField(write_only=True)
