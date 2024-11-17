@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from "react";
 import avatar from "../assets/img/profile.png";
-import toast, { Toaster } from "react-hot-toast";
+import toast from "react-hot-toast";
 import { FaEye, FaEyeSlash } from "react-icons/fa";
 import axios from "axios";
 
-export const ProfileContainer = ({ closeModal }) => {
+export const ProfileContainer = () => {
   const getCurrentUser = () => {
     const token = sessionStorage.getItem("accessToken");
     if (token) {
@@ -58,6 +58,7 @@ export const ProfileContainer = ({ closeModal }) => {
     formData.append("fname", firstName);
     formData.append("email", email);
     formData.append("phone", mobile);
+    formData.append("password", password);
 
     if (file) {
       formData.append('image', file);  
@@ -67,7 +68,9 @@ export const ProfileContainer = ({ closeModal }) => {
 
     update(formData).then(() => {
       toast.success("Profile updated successfully!");
-      closeModal();  // Close modal after update
+      
+        window.location.href = '/menu'; // Refresh the page after closing the modal
+    
     }).catch((error) => {
       toast.error("Failed to update profile.");
       console.error("Update error:", error);
@@ -98,7 +101,7 @@ export const ProfileContainer = ({ closeModal }) => {
 
   return (
     <div className="p-4 w-full space-x-2">
-      <Toaster position="top-center" reverseOrder={false} />
+  
       <div className="flex bg-white shadow-md rounded-lg p-4 w-full space-x-2">
         <div className="flex flex-col w-1/2 items-center">
           <h4 className="text-4xl font-bold text-center mt-4">Profile</h4>

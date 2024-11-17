@@ -39,7 +39,7 @@ const Menu = () => {
         setAccounts(response.data);  
       } catch (error) {
         console.error("Fetch error:", error.response ? error.response.data : error.message);
-        toast.error("Failed to fetch accounts. Please try again.");
+        
       }
     }
   };

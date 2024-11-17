@@ -265,9 +265,9 @@ class UpdateUserDetails(APIView):
         new_phone = request.data.get('phone')
         new_password = request.data.get('password')
         new_image = request.data.get('image', None)  # Use .get() to avoid KeyError
-
+        
         # Check if no data has changed
-        if not new_email and not new_password and not new_image:
+        if not new_email and not new_fname and not new_image and not new_phone:
             return Response({"detail": "No changes made."}, status=status.HTTP_400_BAD_REQUEST)
 
         # If a new email is provided, update it
@@ -277,7 +277,7 @@ class UpdateUserDetails(APIView):
         # If a new password is provided, hash it and update it
         if new_password:
             hashed_password = bcrypt.hashpw(new_password.encode('utf-8'), bcrypt.gensalt()).decode('utf-8')
-            user.password = hashed_password
+            user.password = hashed_password 
             
         if new_fname:
             user.fname = new_fname
