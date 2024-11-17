@@ -59,7 +59,7 @@ const Login = ({ onLoginSuccess }) => {
 
         const originalPassphrase = response.data.passphrase.original_passphrase; // Adjust if nested differently
         toast.success(`Your passphrase: ${originalPassphrase}`);
-        toast.success("Please take note or screenshot passphrase.");
+        toast.success("Please take note or screenshot of your passphrase!");
       } catch (error) {
         console.error("Sign Up error:", error.response ? error.response.data : error.message);
         toast.error("Sign Up failed. Please try again.");
