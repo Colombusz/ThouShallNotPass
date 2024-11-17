@@ -3,7 +3,7 @@ import axios from "axios"; // Import axios for API calls
 import { useNavigate } from "react-router-dom"; // Import useNavigate hook
 import { FaTrash } from "react-icons/fa"; // Import trash icon
 import Login from "../components/Login";
-import Paraphrase from "../components/users/Paraphrase"; // Corrected import path
+import Paraphrase from "../components/users/Paraphrase"; 
 
 const MenuCard = (props) => {
   const [showLoginPrompt, setShowLoginPrompt] = useState(false);
@@ -81,6 +81,7 @@ const MenuCard = (props) => {
       <Paraphrase
         show={showParaphraseModal}
         handleClose={() => setShowParaphraseModal(false)}
+        accountId = {props.id}
       />
 
       {/* Modal for Login Prompt */}

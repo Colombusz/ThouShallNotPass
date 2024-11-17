@@ -1,7 +1,8 @@
 import React from "react";
 import { BrowserRouter as Router, Route, Routes, Navigate } from "react-router-dom";
 import './App.css';
-// User side
+
+// User side imports
 import Navbar from "./layouts/Navbar";
 import Home from "./components/Home";
 import Menu from "./components/Accounts";
@@ -12,7 +13,7 @@ import Profile from "./components/Profile";
 import Paraphrase from "./components/users/Paraphrase"; // Update this path to match the correct location
 import ViewAccDetails from "./components/users/ViewAccDetails";
 
-// Admin side
+// Admin side imports
 import Sidebar from "./components/common/Sidebar";
 import OverviewPage from "./pages/OverviewPage";
 import UsersPage from "./pages/UsersPage";
@@ -21,7 +22,7 @@ import SettingsPage from "./pages/SettingsPage";
 
 import { Toaster } from "react-hot-toast";
 
-// User Layout
+// User Layout component
 const UserLayout = ({ children }) => (
   <div>
     <Navbar />
@@ -30,7 +31,7 @@ const UserLayout = ({ children }) => (
   </div>
 );
 
-// Admin Layout
+// Admin Layout component
 const AdminLayout = ({ children }) => (
   <div className="flex h-screen overflow-hidden">
     {/* Sidebar */}
@@ -47,7 +48,7 @@ const AdminLayout = ({ children }) => (
   </div>
 );
 
-// ProtectedRoute Component
+// ProtectedRoute Component for admin routes
 const ProtectedRoute = ({ children, role }) => {
   const userRole = sessionStorage.getItem("role");
 
@@ -113,7 +114,7 @@ const App = () => {
           }
         />
         <Route
-          path="/view-acc-details"
+          path="/view-acc-details/:id"
           element={
             <UserLayout>
               <ViewAccDetails />
@@ -121,8 +122,8 @@ const App = () => {
           }
         />
 
-  {/* Admin Side Routes */}
-  <Route
+        {/* Admin Side Routes */}
+        <Route
           path="/admin"
           element={
             <ProtectedRoute role="admin">

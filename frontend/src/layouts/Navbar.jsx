@@ -7,14 +7,48 @@ import profilePic from "../assets/img/profile.png"; // Adjust this path to your 
 import Button from "./Button";
 import Login from "../components/Login";
 import { ProfileContainer } from "../components/Profile"; // Import the ProfileContainer component
-
+import axios from "axios"; // Import axios for API calls
 const Navbar = () => {
+  const getCurrentUser = () => {
+    const token = sessionStorage.getItem("accessToken");
+    if (token) {
+      const decodedToken = JSON.parse(atob(token.split('.')[1])); 
+      const userId = decodedToken?.user_id;  
+      console.log("Logged in user ID:", userId);
+      return userId;
+    } else {
+      console.log("No user is logged in.");
+      return null;
+    }
+  };
   const [menu, setMenu] = useState(false);
   const [showLoginModal, setShowLoginModal] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [dropdownOpen, setDropdownOpen] = useState(false);
-  const [showProfileModal, setShowProfileModal] = useState(false); // State for profile modal
+  const [showProfileModal, setShowProfileModal] = useState(false);
+  const [image, setImage] = useState(null) // State for profile modal
   const navigate = useNavigate();
+
+  useEffect(() => {
+    const id = getCurrentUser(); // Now id will be set after getCurrentUser() is executed.
+    
+    if (id) {
+      const fetchAccountDetails = async (id) => {
+        try {
+          const response = await axios.get(
+            `http://127.0.0.1:8000/api/users/FetchData/${id}`
+          );
+          console.log("Fetched users details:", response.data.user);
+          setImage(response.data.user.image);
+        } catch (error) {
+          console.error("Error fetching account details:", error);
+        }
+      };
+
+      fetchAccountDetails(id);
+    }
+  }, []);
+
 
   useEffect(() => {
     const token = sessionStorage.getItem("accessToken");
@@ -105,7 +139,7 @@ const Navbar = () => {
               {/* Profile Picture with Dropdown */}
               <div className="relative">
                 <img
-                  src={profilePic}
+                  src={'http://127.0.0.1:8000/' + image}
                   alt="Profile"
                   className="h-12 w-12 rounded-full cursor-pointer"
                   onClick={toggleDropdown}

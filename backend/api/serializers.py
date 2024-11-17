@@ -32,7 +32,7 @@ class UserSerializer(serializers.ModelSerializer):
     
     class Meta:
         model = User
-        fields = ['id', 'email', 'fname', 'phone', 'role', 'passphrase']
+        fields = ['id', 'email', 'fname', 'phone', 'role', 'passphrase', 'image']
 
     def create(self, validated_data):
         user = super().create(validated_data)
@@ -255,6 +255,34 @@ class UpdateAccountSerializer(serializers.ModelSerializer):
         analysis.estimated_cracking_time = estimate_cracking_time(analysis.entropy, data['password'].get('password'))
         analysis.remarks = remarks(data['password'].get('password'))
         return "Your account has been updated successfully."
+    
+
+class PassPhraseDecoder(serializers.ModelSerializer):
+    def decode(self, data):
+        # Extract the passphrase and user_id from the data
+        passphrase = data.get('passphrase')
+        user_id = data.get('user_id')
+
+        # Check if the passphrase is provided
+        if not passphrase:
+            raise serializers.ValidationError("Passphrase cannot be empty.")
+        
+        if not user_id:
+            raise serializers.ValidationError("User ID is required.")
+
+        try:
+            # Retrieve the passphrase stored in the database for the given user_id
+            passs = Passphrase.objects.get(user_id=user_id)
+            stored_passphrase = passs.passphrase
+        except Passphrase.DoesNotExist:
+            raise serializers.ValidationError("Passphrase for the given user_id not found.")
+
+        # Compare the provided passphrase with the stored passphrase
+        # Use bcrypt's checkpw method to compare the hashes
+        if bcrypt.checkpw(passphrase.encode('utf-8'), stored_passphrase.encode('utf-8')):
+            return True
+        else:
+            return False
         
 
    

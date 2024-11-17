@@ -1,10 +1,13 @@
 from django.urls import path
-from .views import UserCreateView, UserListView,UserDetailView, LoginView, AccountView, UserDeleteView,  FetchAccountView,DeleteAccountView, UpdateAccountView
-from .views import UserUpdateView
+from .views import UserCreateView, UserListView,UserDetailView, LoginView, AccountView, UserDeleteView,  FetchAccountView,DeleteAccountView, UpdateAccountView, FetchSingleAccount,NewAnalysisView
+from .views import UserUpdateView, VerifyPassphrase, FetchUserDetails, UpdateUserDetails
 urlpatterns = [
     # userlogin handler ===================================================================================================
     path('users/register', UserCreateView.as_view(), name='user-create'),  # for creating users via POST
     path('users/login', LoginView.as_view(), name='login'),  # for logging in users via POST
+    # user===================================================================================================
+    path('users/FetchData/<int:pk>', FetchUserDetails.as_view(), name='user-detail'),  
+    path('users/UpdateData/<int:pk>', UpdateUserDetails.as_view(), name='user-detail'), 
     # userlogin handler end ===================================================================================================
     
     
@@ -13,6 +16,9 @@ urlpatterns = [
     path('users/FetchAccount/<int:pk>', FetchAccountView.as_view(), name='account-fetch'),
     path('users/DeleteAccount/<int:pk>', DeleteAccountView.as_view(), name='account-Delete'),
     path('users/UpdateAccount/<int:pk>', UpdateAccountView.as_view(), name='account-Update'),
+    path('verify-passphrase', VerifyPassphrase.as_view(), name='verify-passphrase'),
+    path('users/FetchSingleAccount/<int:pk>', FetchSingleAccount.as_view(), name='single-account-fetch'),
+    path('users/CheckNewAnalysis/<int:pk>', NewAnalysisView.as_view(), name='new-analysis-fetch'),
     
     # account handler end ===================================================================================================
     
