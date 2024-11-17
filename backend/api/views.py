@@ -7,7 +7,7 @@ from .models import User, Role, Account, Passphrase, Password, Analysis
 from .serializers import UserSerializer, LoginSerializer, CreateAccountSerializer, PasswordHasher, AccountSerializer, DeleteAccountSerializer, UpdateAccountSerializer
 from django.core.files.storage import FileSystemStorage
 from django.conf import settings
-
+from rest_framework.parsers import MultiPartParser, FormParser
 
 # for login process
 from rest_framework.views import APIView
@@ -70,22 +70,15 @@ class LoginView(APIView):
 
 # for creating existing accounts of the current user
 class AccountView(generics.ListAPIView):
-    def post(self, request, pk):
+    parser_classes = (MultiPartParser, FormParser)
+    
+    def post(self, request, pk, format=None):
         # return Response(data = request.data, status=status.HTTP_200_OK)
         serializer = CreateAccountSerializer(data = request.data)
         serializer2 = PasswordHasher(data = request.data)
         user_id = pk
         
-        uploaded_file = request.FILES.get('image')
-        file_path = None  # Initialize file path for later use
-
-        if uploaded_file:
-            # Save the file to the media folder
-            fs = FileSystemStorage(location=settings.MEDIA_ROOT)
-            filename = fs.save(uploaded_file.name, uploaded_file)
-            file_path = fs.url(filename)
-        print(request.FILES.get('image').name)
-        # return Response(data = request.data, status=status.HTTP_200_OK)
+        print(request.data)
         if serializer.is_valid() and serializer2.is_valid():
            
             data = serializer.validated_data

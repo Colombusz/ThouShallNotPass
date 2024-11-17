@@ -6,7 +6,13 @@ import string
 from django.core.exceptions import ValidationError
 import hashlib
 import bcrypt
+from django.utils.translation import gettext_lazy as _
 
+
+def upload_to_profile(instance, filename):
+    return 'profile/{filename}'.format(filename=filename)
+def upload_to_account(instance, filename):
+    return 'account/{filename}'.format(filename=filename)
 
 class Role(models.Model):
     ROLE_CHOICES = [
@@ -45,7 +51,8 @@ class User(models.Model):
     password = models.CharField(max_length=255)  # Store hashed passwords
     phone = models.CharField(max_length=15)
     image = models.ImageField(
-        upload_to='profile/', 
+        _('image'),
+        upload_to=upload_to_profile, 
         null=True, 
         blank=True, 
         default='profile/default.jpg'  # Default image path
@@ -79,7 +86,8 @@ class Account(models.Model):
     username = models.CharField(max_length=100)
     url = models.CharField(max_length=255, default='example.com')
     image = models.ImageField(
-        upload_to='account/', 
+        _('image'),
+        upload_to=upload_to_account, 
         null=True, 
         blank=True, 
         default='account/default.jpg'  # Default image path

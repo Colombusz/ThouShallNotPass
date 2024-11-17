@@ -30,7 +30,7 @@ class UserSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = User
-        fields = ['email', 'fname', 'password', 'phone', 'role', 'passphrase']
+        fields = ['email', 'fname', 'password', 'phone', 'role', 'passphrase', 'image']
 
     def create(self, validated_data):
         user = super().create(validated_data)
@@ -153,6 +153,7 @@ class CreateAccountSerializer(serializers.ModelSerializer):
         description = data['description']
         username = data['username']
         Acc_url = data['url']
+        # print(data)
        
         if not id:
            return False
@@ -165,6 +166,7 @@ class CreateAccountSerializer(serializers.ModelSerializer):
             username=username,
             user_id = id, # fixed
             url=Acc_url,
+            image=data['image'],
             # user_id=self.context['request'].user,
         )
          # Check if URL exists

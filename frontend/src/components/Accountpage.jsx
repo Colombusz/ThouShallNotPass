@@ -69,17 +69,14 @@ const AccountPage = ({ isVisible, onClose }) => {
   const createAccount = async (formData) => {
     const id = getCurrentUser();
     try {
-      const response = await axios.post(`http://127.0.0.1:8000/api/users/CreateAccount/${id}`,{
-        method: "POST",
-        body: formData, // Pass FormData directly
+      const response = await axios.post(`http://127.0.0.1:8000/api/users/CreateAccount/${id}`, formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',  // Axios will handle this with FormData
+        },
       });
   
-      if (!response.ok) {
-        console.log(response.data)
-      }
-  
-      const data = await response.data;
-      console.log("Account created successfully:", data);
+      // Handle response
+      console.log("Account created successfully:", response.data);
     } catch (error) {
       console.error("There was a problem with the fetch operation:", error);
     }
@@ -88,27 +85,29 @@ const AccountPage = ({ isVisible, onClose }) => {
 
   const handleSubmit = (event) => {
     event.preventDefault();
+    
+    // Get the form input elements
     const fileInput = event.target.image; 
     let image_file = null;
     if (fileInput && fileInput.files.length > 0) {
       image_file = fileInput.files[0];
     }
-    const formData = {
-      name: selectedApp === "Other" ? otherAppName : selectedApp,
-      username: event.target.username.value,
-      description: event.target.description.value,
-      url: event.target.url.value,
-      password: password,
-      image: image_file,
-    };
+  
+    // Create FormData object and append the form fields
+    const formData = new FormData();
+    formData.append('name', selectedApp === "Other" ? otherAppName : selectedApp);
+    formData.append('username', event.target.username.value);
+    formData.append('description', event.target.description.value);
+    formData.append('url', event.target.url.value);
+    formData.append('password', password);
+    if (image_file) {
+      formData.append('image', image_file);  // Add file to FormData
+    }
+  
     console.log("Form submitted with data:", formData);
-    createAccount(formData);
+    createAccount(formData);  // Pass FormData directly
   };
-
-  if (!isVisible) {
-    return null;
-  }
-
+  
   return (
     <>
       <div
