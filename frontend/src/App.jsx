@@ -5,7 +5,7 @@ import './App.css';
 import Navbar from "./layouts/Navbar";
 import Home from "./components/Home";
 import Menu from "./components/Accounts";
-import AccountPage from "./components/Accountpage";
+import AccountPage from "./components/AccountPage";
 import About from "./components/About";
 import Footer from "./layouts/Footer";
 import Profile from "./components/Profile";
@@ -30,7 +30,6 @@ const UserLayout = ({ children }) => (
   </div>
 );
 
-// Admin Layout
 // Admin Layout
 const AdminLayout = ({ children }) => (
   <div className="flex h-screen overflow-hidden">

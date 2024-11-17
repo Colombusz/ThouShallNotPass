@@ -1,3 +1,5 @@
+import { useEffect, useState } from "react";
+import axios from "axios";
 import { UserCheck, UserPlus, UsersIcon, UserX } from "lucide-react";
 import { motion } from "framer-motion";
 
@@ -6,16 +8,35 @@ import StatCard from "../components/common/StatCard";
 import UsersTable from "../components/users/UsersTable";
 import UserGrowthChart from "../components/users/UserGrowthChart";
 import UserActivityHeatmap from "../components/users/UserActivityHeatmap";
-import UserDemographicsChart from "../components/users/UserDemographicsChart";
-
-const userStats = {
-    totalUsers: 152845,
-    newUsersToday: 243,
-    activeUsers: 98520,
-    churnRate: "2.4%",
-};
+// import UserDemographicsChart from "../components/users/UserDemographicsChart";
 
 const UsersPage = () => {
+    const [userStats, setUserStats] = useState({
+        totalUsers: 0,
+        newUsersToday: 0,
+        activeUsers: 0,
+        churnRate: "2.4%",
+    });
+
+    useEffect(() => {
+        const fetchTotalUsers = async () => {
+            try {
+                const response = await axios.get("http://127.0.0.1:8000/api/users/list");
+                const totalUsers = response.data.length; // Assuming the response is an array of users
+                setUserStats(prevStats => ({
+                    ...prevStats,
+                    totalUsers: totalUsers,
+                    newUsersToday: totalUsers, // Setting new users today to the same count as total users
+                    activeUsers: totalUsers, // Setting active users to the same count as total users
+                }));
+            } catch (error) {
+                console.error("Error fetching total users:", error);
+            }
+        };
+
+        fetchTotalUsers();
+    }, []);
+
     return (
         <div className='flex-1 overflow-auto relative bg-[#ECF9FF]'>
             <Header title='Users' />
@@ -50,7 +71,7 @@ const UsersPage = () => {
                 <div className='grid grid-cols-1 lg:grid-cols-2 gap-6 mt-8'>
                     <UserGrowthChart />
                     <UserActivityHeatmap />
-                    <UserDemographicsChart />
+                    {/* <UserDemographicsChart /> */}
                 </div>
             </main>
         </div>
