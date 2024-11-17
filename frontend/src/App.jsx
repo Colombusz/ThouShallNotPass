@@ -31,15 +31,16 @@ const UserLayout = ({ children }) => (
 );
 
 // Admin Layout
+// Admin Layout
 const AdminLayout = ({ children }) => (
   <div className="flex h-screen overflow-hidden">
     {/* Sidebar */}
     <Sidebar />
     {/* Main Content */}
-    <div className="flex-grow">
+    <div className="flex-grow overflow-auto">
       {/* Background */}
       <div className="fixed inset-0 z-0">
-        <div className="absolute inset-0 bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 opacity-80" />
+        <div className="absolute inset-0 bg-gradient-to-br from-white via-gray-300 to-gray-500 opacity-80" />
         <div className="absolute inset-0 backdrop-blur-sm" />
       </div>
       {children}
