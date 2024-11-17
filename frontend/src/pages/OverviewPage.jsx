@@ -1,28 +1,27 @@
-import { useState, useEffect } from "react";
+import { useEffect, useState } from "react";
 import { Activity, Shield, Users, AlertCircle } from "lucide-react";
 import { motion } from "framer-motion";
-import axios from "axios";
 
 import Header from "../components/common/Header";
 import StatCard from "../components/common/StatCard";
 import PasswordStrengthOverviewChart from "../components/overview/PasswordStrengthOverviewChart";
 import PasswordStrengthDistributionChart from "../components/overview/PasswordStrengthDistributionChart";
-import PasswordStrengthChart from "../components/overview/PasswordStrengthChart";
 
 const OverviewPage = () => {
     const [newUsersCount, setNewUsersCount] = useState(0);
 
     useEffect(() => {
-        const fetchUserCount = async () => {
+        const fetchUsers = async () => {
             try {
-                const response = await axios.get("http://127.0.0.1:8000/api/users/list");
-                setNewUsersCount(response.data.length);
+                const response = await fetch("http://127.0.0.1:8000/api/users/list");
+                const data = await response.json();
+                setNewUsersCount(data.length);
             } catch (error) {
-                console.error("Error fetching user count:", error);
+                console.error("Error fetching users:", error);
             }
         };
 
-        fetchUserCount();
+        fetchUsers();
     }, []);
 
     return (
@@ -66,7 +65,6 @@ const OverviewPage = () => {
                 <div className='grid grid-cols-1 lg:grid-cols-2 gap-8'>
                     <PasswordStrengthOverviewChart />
                     <PasswordStrengthDistributionChart />
-                    <PasswordStrengthChart />
                 </div>
             </main>
         </div>

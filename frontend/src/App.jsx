@@ -39,7 +39,7 @@ const AdminLayout = ({ children }) => (
     <div className="flex-grow overflow-auto">
       {/* Background */}
       <div className="fixed inset-0 z-0">
-        <div className="absolute inset-0 bg-gradient-to-br from-white via-gray-300 to-gray-500 opacity-80" />
+        <div className="absolute inset-0 bg-gradient-to-br from-[#ECF9FF] via-[#ECF9FF] to-[#ECF9FF] opacity-80" />
         <div className="absolute inset-0 backdrop-blur-sm" />
       </div>
       {children}
