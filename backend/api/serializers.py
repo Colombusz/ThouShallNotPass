@@ -72,6 +72,8 @@ class RegisterSerializer(serializers.ModelSerializer):
             user.passphrase = user._original_passphrase
         return user
     
+    
+    
 class LoginSerializer(serializers.Serializer):
     email = serializers.EmailField()
     password = serializers.CharField(write_only=True)
@@ -156,7 +158,7 @@ class AnalysisSerializer(serializers.ModelSerializer):
     class Meta:
         model = Analysis
         fields = ['entropy', 'estimated_cracking_time', 'remarks', 'password_id']
-    
+
     def analyze(self, id, password):
         entropy = calculate_entropy(password)
         cracking_time = estimate_cracking_time(entropy, password)
@@ -170,8 +172,8 @@ class AnalysisSerializer(serializers.ModelSerializer):
             password_id=password_id,
         )
         analysis.save()
-        
         return analysis
+
 
 class CreateAccountSerializer(serializers.ModelSerializer):
     class Meta:
